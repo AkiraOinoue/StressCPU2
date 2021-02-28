@@ -7,5 +7,5 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 山本ワールドさんありがとうございます。</br>
 開発ツール：Visual Studio 2019</br>
 プラットフォーム：Windows 10 64bit</br>
-アプリケーション：MFC Win32API 32bit アプリケーション</br>
+アプリケーション：MFCスタティックリンク Win32API 32bit アプリケーション</br>
 操作は~doc/操作マニュアル.xlsxを参考にして下さい。</br>
