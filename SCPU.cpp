@@ -11,6 +11,10 @@ namespace SCPU
 	std::mutex mtx_flps;
 	// 単精度演算消費時間サンプリング実行中フラグ排他オブジェクト
 	std::mutex mtx_flpssmpflg;
+	// プログレスバー更新フラグ排他
+	std::mutex mtx_prgbar;
+	// 乱数表示フラグ排他
+	std::mutex mtx_rnddisp;
 	// 全スレッド終了フラグ
 	// true=全スレッド終了, false=全スレッド稼働中
 	bool ThreadEndFlg;
@@ -47,18 +51,26 @@ namespace SCPU
 			}
 			else if (stat == MT::e_Status::st_running)
 			{
-				// 各ストレス乱数を取得
-				svar = strc->hmultiThrd->GetRndStr(thridx);
-				// 各乱数表示領域に表示
-				strc->SetStVector(thridx, svar.c_str());
-				// プログレスバー表示
-				if (PrgRunFlg == true)
+				// 乱数表示ON
+				if (strc->GetThreadRndDispFlg() == TRUE)
 				{
-					strc->PrgBarRun(thridx);
-					PrgRunFlg = false;
+					// 各ストレス乱数を取得
+					svar = strc->hmultiThrd->GetRndStr(thridx);
+					// 各乱数表示領域に表示
+					strc->SetStVector(thridx, svar.c_str());
 				}
-				// プログレスバー更新
-				strc->PrgBarUpdate(thridx);
+				// プログレスバー更新ON
+				if (strc->GetPrgBarUpdateFlg() == TRUE)
+				{
+					// プログレスバー表示
+					if (PrgRunFlg == true)
+					{
+						strc->PrgBarRun(thridx);
+						PrgRunFlg = false;
+					}
+					// プログレスバー更新
+					strc->PrgBarUpdate(thridx);
+				}
 			}
 		}
 	}

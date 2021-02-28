@@ -8,20 +8,38 @@
 // StressCPUDlg.h : ヘッダー ファイル
 // Designed and Implemented by Akira Oinoue
 // Email:davinci1958@docomonet.jp
-// 2020.6 ver 1.0.0
+// 2021.2 ver 1.1.0 プログレスバー追加
+// 2020.6 ver 1.0.0 初回開発版
 // ※）スレッドの割り当てについては、以下のサイトを参考にしました。
 // 山本ワールドさんありがとう
 // http://yamatyuu.net/computer/program/vc2013/thread4/index.html
+
+/* GITHUB .md
+# StressCPU2
+CPUの各スレッド毎に100%の負荷を与える事ができる。
+このプログラムはその特性上PC全体を停止させたり、使用中のアプリケーションに大きな影響を与え且つ取り扱い中のデータを破壊してしまうリスクがあります。
+このプログラムをご使用になる場合は他のアプリケーションを停止した状態にして下さい。
+スレッド毎の負荷の掛け方は以下のサイトを参考にしました。
+http://yamatyuu.net/computer/program/vc2013/thread4/index.html
+山本ワールドさんありがとうございます。
+開発ツール：Visual Studio 2019
+プラットフォーム：Windows 10 64bit
+アプリケーション：MFC Win32API 32bit アプリケーション
+操作は操作マニュアル.xlsxを参考にして下さい。
+*/
 
 #pragma once
 #include <thread>
 #include <vector>
 #include <string>
+#include <map>
+#include <filesystem>
 #include "MultiThread.h"
 #include "CPUID.h"
 #include "PrgbCtrl.h"
 #define D_WAIT_TIME (500)
 //#define D_MAX_THRD_CNT (16)
+namespace fs = std::filesystem;
 // CStressCPUDlg ダイアログ
 class CStressCPUDlg : 
 	public CDialogEx
@@ -46,14 +64,26 @@ protected:
 
 // 実装
 protected:
+	/// <summary>
+	/// 各コントロールのツールチップを設定
+	/// </summary>
+	/// <param name=""></param>
+	void SetCtrlToolTips(void);
+	/// <summary>
+	/// 各コントロールのツールチップを追加
+	/// </summary>
+	/// <param name="lpCtrl">コントロールのポインタ</param>
+	/// <param name="tipsmsg">ツールチップ</param>
+	void SetAddToolTips(CWnd* lpCtrl, LPCTSTR tipsmsg);
 	HICON m_hIcon;
-
 	// 生成された、メッセージ割り当て関数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	// ツールチップ
+	CToolTipCtrl m_toolTip;
 	// CPUインフォメーション
 	CPUID cpuid;
 	// 一括実行フラグ
@@ -130,13 +160,25 @@ public:
 		CString stvar,
 		CStatic& cst
 	);
+	// プログレスバー更新フラグ
+	BOOL PrgBarUpdateFlg;
+	// スレッド毎の乱数表示フラグ
+	BOOL ThreadRndDispFlg;
+	// プログレスバー更新フラグ設定
+	void SetPrgBarUpdateFlg(BOOL bval);
+	// プログレスバー更新フラグ取得
+	BOOL GetPrgBarUpdateFlg(void);
+	// スレッド毎の乱数表示フラグ設定
+	void SetThreadRndDispFlg(BOOL bval);
+	// スレッド毎の乱数表示フラグ取得
+	BOOL GetThreadRndDispFlg(void);
 	afx_msg void OnClickedBuAllSleep();
 	afx_msg void OnClickedBuAllExec();
-	// 一括実行
+	// スレッド準備
 	CButton m_BU_ALL_Exec;
-	// 一括待機
+	// 一括休止
 	CButton m_BU_AllSleep;
-	// 一括復帰
+	// 一括実行
 	CButton m_BU_AllWake;
 	// 乱数表示領域
 	CStatic m_ST_Guid01;
@@ -256,13 +298,6 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	// プログレスバー
 	CProgressCtrl Prgb01;
-	CProgressCtrl Prgb10;
-	CProgressCtrl Prgb11;
-	CProgressCtrl Prgb12;
-	CProgressCtrl Prgb13;
-	CProgressCtrl Prgb14;
-	CProgressCtrl Prgb15;
-	CProgressCtrl Prgb16;
 	CProgressCtrl Prgb02;
 	CProgressCtrl Prgb03;
 	CProgressCtrl Prgb04;
@@ -271,4 +306,41 @@ public:
 	CProgressCtrl Prgb07;
 	CProgressCtrl Prgb08;
 	CProgressCtrl Prgb09;
+	CProgressCtrl Prgb10;
+	CProgressCtrl Prgb11;
+	CProgressCtrl Prgb12;
+	CProgressCtrl Prgb13;
+	CProgressCtrl Prgb14;
+	CProgressCtrl Prgb15;
+	CProgressCtrl Prgb16;
+	// プログレスバー更新有無切替
+	CButton chk_PrgBar;
+	// 乱数表示有無切替え
+	CButton chk_RndVal;
+	afx_msg void OnClickedChkPrgbar();
+	afx_msg void OnClickedChkRndval();
+	// CPU画像表示変数
+	CStatic m_CPU_IMG;
+private:
+	// コントロールのハンドル格納マップ
+	std::map<HWND, int>	m_CtrlMap;
+	// CPUIDベンダー表示
+	CPUID m_cpuinfo;
+	// プログラムのカレントパス
+	fs::path m_CurrentPath;
+	// AMD CPU イメージファイル名
+	fs::path m_amd_cpu_file;
+	// Intel CPU イメージファイル名
+	fs::path m_intel_cpu_file;
+	//ピクチャーコントロールの描画エリア
+	RECT m_cpu_rect;
+	/// <summary>
+	/// ピクチャーコントロールへの描画処理
+	/// </summary>
+	/// <param name="cpuid">CPUベンダー情報</param>
+	void setPictureControl(CPUID& cpuid);
+public:
+	// ツールチップ表示イベント
+	// 仮想関数を追加で作成
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

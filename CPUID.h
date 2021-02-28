@@ -26,6 +26,16 @@ public:
 	/// </summary>
 	/// <returns>std::string CPUのブランド名</returns>
 	std::string GetBrand();
+	/// <summary>
+	/// Get AMD CPU FLAG
+	/// </summary>
+	/// <returns></returns>
+	bool IsAMD();
+	/// <summary>
+	/// Get Intel CPU FLAG
+	/// </summary>
+	/// <returns></returns>
+	bool IsIntel();
 #ifdef _USED
 	/// <summary>
 	/// 物理コア数を取得
@@ -43,7 +53,6 @@ private:
 	//uint32_t eax, ebx, ecx, edx; // Do not change member order.
 	_T_Register regs;
 	void cpuID(_T_Register& regs, unsigned i);
-private:
 	/// <summary>
 	/// CPUIDベンダ名拡張用
 	/// </summary>
@@ -52,7 +61,10 @@ private:
 	/// CPUIDブランド名
 	/// </summary>
 	char brand[16 * 3 + 1];
-
+	// AMD CPU FLAG
+	bool IsAMD_Flg;
+	// Intel CPU FLAG
+	bool IsIntel_Flg;
 public:
 	/// <summary>
 	/// コンストラクタ

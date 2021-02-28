@@ -13,7 +13,6 @@
 #include "SCPU.h"
 #include <chrono>
 #include <mutex>
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -42,9 +41,17 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 	FlpsCalTimerEven(0.0),
 	hFlpsPerThread(nullptr),
 	m_MaxPhysicalCore(0),
+	PrgBarUpdateFlg(TRUE),
+	ThreadRndDispFlg(TRUE),
+	m_CurrentPath(""),
+	m_amd_cpu_file("amd_cpu.jpg"),
+	m_intel_cpu_file("intel_cpu.jpg"),
+	m_cpuinfo{},
+	m_CtrlMap{},
 	m_MaxThrdCount(0)
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	//m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_hIcon = AfxGetApp()->LoadIcon(IDI_CPU);
 	// ストレスマルチスレッド管理
 	this->hmultiThrd = new MT::MultiThread;
 	// ストレススレッド監視用スレッド起動
@@ -59,8 +66,7 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 		thread_pri
 	);
 	// スレッド数設定
-	CPUID cpuinfo;
-	this->m_MaxThrdCount = cpuinfo.GetPhysCores();
+	this->m_MaxThrdCount = this->m_cpuinfo.GetPhysCores();
 	if (this->m_MaxThrdCount > D_MAX_THRD_CNT)
 	{
 		CString cthrcnt = "";
@@ -78,6 +84,8 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 		);
 		this->m_MaxThrdCount = D_MAX_THRD_CNT;
 	}
+	// カレントディレクトリ設定
+	this->m_CurrentPath = fs::current_path();
 }
 void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -147,6 +155,9 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PROGRESS14, Prgb14);
 	DDX_Control(pDX, IDC_PROGRESS15, Prgb15);
 	DDX_Control(pDX, IDC_PROGRESS16, Prgb16);
+	DDX_Control(pDX, IDC_CHK_PRGBAR, chk_PrgBar);
+	DDX_Control(pDX, IDC_CHK_RNDVAL, chk_RndVal);
+	DDX_Control(pDX, IDC_CPU_IMG, m_CPU_IMG);
 }
 
 BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
@@ -177,6 +188,8 @@ BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COM_THREAD, &CStressCPUDlg::OnSelchangeComThread)
 	ON_BN_CLICKED(IDC_BU_VERSION, &CStressCPUDlg::OnClickedBuVersion)
 	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_CHK_PRGBAR, &CStressCPUDlg::OnClickedChkPrgbar)
+	ON_BN_CLICKED(IDC_CHK_RNDVAL, &CStressCPUDlg::OnClickedChkRndval)
 END_MESSAGE_MAP()
 
 // CStressCPUDlg メッセージ ハンドラー
@@ -223,6 +236,10 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb14));
 	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb15));
 	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb16));
+	// プログレスバー更新チェックボックスON
+	this->chk_PrgBar.SetCheck(TRUE);
+	// スレッド毎の乱数表示チェックボックスON
+	this->chk_RndVal.SetCheck(TRUE);
 	// ストレス対象数選択リスト初期化
 	int ii = 0;
 	for (const auto stvec : this->m_StVector)
@@ -274,11 +291,10 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->m_CH_Idles.push_back(&this->m_CH_Idle15);
 	this->m_CH_Idles.push_back(&this->m_CH_Idle16);
 	// CPUIDベンダー表示
-	CPUID cpuinfo;
-	this->cpu_vender = cpuinfo.GetVendor().c_str();
+	this->cpu_vender = this->m_cpuinfo.GetVendor().c_str();
 	this->m_ST_CpuVen.SetWindowTextA(this->cpu_vender.c_str());
 	// CPUIDブランド表示
-	CString tmpBrnd = cpuinfo.GetBrand().c_str();
+	CString tmpBrnd = this->m_cpuinfo.GetBrand().c_str();
 	this->m_ST_CpuBrand.SetWindowTextA(tmpBrnd);
 	// コア数表示
 	CString tmpCpu = "";
@@ -291,10 +307,76 @@ BOOL CStressCPUDlg::OnInitDialog()
 	{
 		var->SetWindowTextA(this->cpu_vender.c_str());
 	}
-	
+	// CPU画像ピクチャーコントロールの幅と高さを取得
+	this->m_CPU_IMG.GetWindowRect(&this->m_cpu_rect);
+	// 各コントロールのツールチップ設定
+	this->SetCtrlToolTips();
+
 	return TRUE;  // フォーカスをコントロールに設定した場合を除き、TRUE を返します。
 }
-
+/// <summary>
+/// 各コントロールのツールチップを設定
+/// </summary>
+/// <param name=""></param>
+void CStressCPUDlg::SetCtrlToolTips(void)
+{
+	//////////////////////////////////////////////////////
+	// ツールチップ設定
+	//////////////////////////////////////////////////////
+	this->m_toolTip.Create(
+		this,
+		TTS_ALWAYSTIP | TTS_BALLOON
+	);
+	// 最大スレッド数選択
+	this->SetAddToolTips(&this->m_COM_Thread, "負荷を掛ける最大スレッド数を選択して下さい。");
+	// スレッド準備ボタン
+	this->SetAddToolTips(&this->m_BU_ALL_Exec, "このボタンでスレッド起動の準備をします。");
+	// 全実行
+	this->SetAddToolTips(&this->m_BU_AllWake, "全てのスレッドに負荷を掛けます。");
+	// 全休止
+	this->SetAddToolTips(&this->m_BU_AllSleep, "全てのスレッドを休止状態にします。");
+	// 休止/実行反転
+	this->SetAddToolTips(&this->m_BU_XorThrd, "全てのスレッドの実行／休止状態を反転します。");
+	// 実行チェックボックス
+	for (const auto& var : this->m_CH_Idles)
+	{
+		this->SetAddToolTips(var, "スレッドの負荷／休止を切り替える");
+	}
+}
+/// <summary>
+/// 各コントロールのツールチップを追加
+/// </summary>
+/// <param name="lpCtrl">コントロールのポインタ</param>
+/// <param name="tipsmsg">ツールチップ</param>
+void CStressCPUDlg::SetAddToolTips(
+	CWnd* lpCtrl,
+	LPCTSTR tipsmsg
+)
+{
+	// コントロールにツールチップを追加登録
+	this->m_toolTip.AddTool(lpCtrl, tipsmsg);
+	// コントロールのハンドルを登録
+	this->m_CtrlMap[(*lpCtrl).m_hWnd] = 1;
+}
+// ツールチップ表示イベント
+// 仮想関数を追加で作成
+BOOL CStressCPUDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: ここに特定なコードを追加するか、もしくは基底クラスを呼び出してください。
+	if (pMsg->message == WM_MOUSEMOVE)
+	{		
+		if (this->m_CtrlMap[pMsg->hwnd] == 1)
+		{
+			this->m_toolTip.RelayEvent(pMsg);
+		}
+		else
+		{
+			this->m_toolTip.Pop();
+		}
+		return TRUE;
+	}
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
 // ダイアログに最小化ボタンを追加する場合、アイコンを描画するための
 //  下のコードが必要です。ドキュメント/ビュー モデルを使う MFC アプリケーションの場合、
 //  これは、Framework によって自動的に設定されます。
@@ -389,6 +471,8 @@ void CStressCPUDlg::OnClickedBuAllExec()
 	// 0.5秒毎に更新
 	// 全スレッドが終了するまで無限にループ
 	this->FlpsDispValue();
+	// CPU画像表示
+	this->setPictureControl(this->m_cpuinfo);
 }
 // 一括休止ボタン
 void CStressCPUDlg::OnClickedBuAllSleep()
@@ -886,4 +970,135 @@ HBRUSH CStressCPUDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 	// TODO: 既定値を使用したくない場合は別のブラシを返します。
 	return hbr;
+}
+// プログレスバー更新フラグ設定
+void CStressCPUDlg::SetPrgBarUpdateFlg(BOOL bval)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_prgbar);
+	this->chk_PrgBar.SetCheck(bval);
+}
+// プログレスバー更新フラグ取得
+BOOL CStressCPUDlg::GetPrgBarUpdateFlg(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_prgbar);
+	return this->chk_PrgBar.GetCheck();
+}
+// スレッド毎の乱数表示フラグ設定
+void CStressCPUDlg::SetThreadRndDispFlg(BOOL bval)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_rnddisp);
+	this->chk_RndVal.SetCheck(bval);
+}
+// スレッド毎の乱数表示フラグ取得
+BOOL CStressCPUDlg::GetThreadRndDispFlg(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_rnddisp);
+	return this->chk_RndVal.GetCheck();
+}
+// プログレスバー更新の実行・停止
+void CStressCPUDlg::OnClickedChkPrgbar()
+{
+	static std::thread* thrHnd;
+	// 更新実行
+	if (this->chk_PrgBar.GetCheck() == TRUE)
+	{
+		this->SetPrgBarUpdateFlg(TRUE);
+	}
+	// 更新停止
+	else
+	{
+		this->SetPrgBarUpdateFlg(FALSE);
+	}
+	// 一定時間クリックベントを無効にする
+	thrHnd = nullptr;
+	thrHnd = new std::thread(
+		SCPU::EventWait,
+		&this->chk_PrgBar,
+		(UINT32)D_WAIT_TIME
+	);
+}
+// スレッド毎の乱数表示の実行・停止
+void CStressCPUDlg::OnClickedChkRndval()
+{
+	static std::thread* thrHnd;
+	// 表示実行
+	if (this->chk_RndVal.GetCheck() == TRUE)
+	{
+		this->SetThreadRndDispFlg(TRUE);
+	}
+	// 表示停止
+	else
+	{
+		this->SetThreadRndDispFlg(FALSE);
+	}
+	// 一定時間クリックベントを無効にする
+	thrHnd = nullptr;
+	thrHnd = new std::thread(
+		SCPU::EventWait,
+		&this->chk_RndVal,
+		(UINT32)D_WAIT_TIME
+	);
+}
+/// <summary>
+/// ピクチャーコントロールへの描画処理
+/// </summary>
+/// <param name="cpu_vender">CPUベンダー情報</param>
+void CStressCPUDlg::setPictureControl(CPUID& cpuid)
+{
+	CDC* cdc;
+	int iWidth, iHeight;
+	//IDC_PICTURE2にファイルを描画
+	cdc = this->m_CPU_IMG.GetDC();
+	iWidth = m_cpu_rect.right - m_cpu_rect.left;
+	iHeight = m_cpu_rect.bottom - m_cpu_rect.top;
+	//読み込む画像ファイルパス選択
+	CString cs;
+	fs::path CPU_IMG;
+	if (cpuid.IsAMD() == true)
+	{
+		CPU_IMG = this->m_amd_cpu_file;
+	}
+	else if (cpuid.IsIntel() == true)
+	{
+		CPU_IMG = this->m_intel_cpu_file;
+	}
+	else
+	{
+		CPU_IMG = this->m_intel_cpu_file;
+	}
+	cs = (this->m_CurrentPath / "res" / CPU_IMG).c_str();
+	CImage img;
+	HRESULT ret = img.Load(cs);
+	if (img.IsNull()) {
+		::MessageBox(
+			this->GetSafeHwnd(),
+			"画像の読み込み失敗",
+			"CPU画像読み込み処理",
+			MB_ICONERROR
+		);
+		return;
+	}
+	//StretchBltで描画領域に合わせてリサイズ
+	CDC bmpDC;
+	CBitmap* cbmp;
+	cbmp = CBitmap::FromHandle(img);
+	bmpDC.CreateCompatibleDC(cdc);
+	CBitmap* oldbmp = bmpDC.SelectObject(cbmp);
+	//伸縮すると画像が汚くなるので伸縮モードを指定
+	//詳細はMSDN参照
+	cdc->SetStretchBltMode(STRETCH_HALFTONE);
+	//ブラシのずれを防止するためSetBrushOrgExを呼び出す
+	cdc->SetBrushOrg(0, 0);
+	//画像を伸縮してピクチャーボックスに表示
+	//詳細はMSDN参照
+	cdc->StretchBlt(0, 0, iWidth, iHeight, &bmpDC, 0, 0, img.GetWidth(), img.GetHeight(), SRCCOPY);
+	bmpDC.SelectObject(oldbmp);
+	//後片付け
+	cbmp->DeleteObject();
+	bmpDC.DeleteDC();
+	ReleaseDC(cdc);
 }

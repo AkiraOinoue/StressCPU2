@@ -6,6 +6,7 @@
 #define IDR_MAINFRAME                   128
 #define IDD_DLG_VERSION                 130
 #define IDD_DIALOG_ENDING               132
+#define IDI_CPU                         138
 #define IDC_ST_MAXTITLE                 1000
 #define IDC_LI_THREAD                   1001
 #define IDC_CH_IDLE01                   1003
@@ -98,14 +99,17 @@
 #define IDC_PROGRESS14                  1091
 #define IDC_PROGRESS15                  1092
 #define IDC_PROGRESS16                  1093
+#define IDC_CHK_PRGBAR                  1094
+#define IDC_CHK_RNDVAL                  1095
+#define IDC_CPU_IMG                     1096
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        134
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1079
+#define _APS_NEXT_CONTROL_VALUE         1097
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

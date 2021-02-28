@@ -7,7 +7,9 @@
 /// <returns></returns>
 CPUID::CPUID() :
 	vendor{ 0 },
-	brand{ 0 }
+	brand{ 0 },
+	IsAMD_Flg{false},
+	IsIntel_Flg{false}
 {}
 /// <summary>
 /// get_cpuid
@@ -93,6 +95,14 @@ std::string CPUID::GetVendor()
 	*(uint32_t*)&vendor[4 * 2] = this->regs.ecx;
 	this->vendor[sizeof(vendor) - 1] = 0;
 	retS = this->vendor;
+	if (retS == "AuthenticAMD")
+	{
+		this->IsAMD_Flg = true;
+	}
+	else if (retS == "GenuineIntel")
+	{
+		this->IsIntel_Flg = true;
+	}
 	return retS;
 }
 /// <summary>
@@ -113,4 +123,20 @@ std::string CPUID::GetBrand()
 	this->brand[sizeof(brand) - 1] = 0;
 	retS = this->brand;
 	return retS;
+}
+/// <summary>
+/// Get AMD CPU FLAG
+/// </summary>
+/// <returns></returns>
+bool CPUID::IsAMD()
+{
+	return this->IsAMD_Flg;
+}
+/// <summary>
+/// Get Intel CPU FLAG
+/// </summary>
+/// <returns></returns>
+bool CPUID::IsIntel()
+{
+	return this->IsIntel_Flg;
 }

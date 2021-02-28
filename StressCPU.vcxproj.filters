@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="参考">
-      <UniqueIdentifier>{08ec52c3-e42d-422a-8d04-639340a90c2e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DOC">
       <UniqueIdentifier>{558aa4c3-58cd-4d77-a0b1-1631c7ba0fec}</UniqueIdentifier>
     </Filter>
@@ -54,9 +51,6 @@
     <ClInclude Include="CDialogEnding.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="参考\barrier.h">
-      <Filter>参考</Filter>
-    </ClInclude>
     <ClInclude Include="PrgbCtrl.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -86,18 +80,6 @@
     <ClCompile Include="CDialogEnding.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="参考\barrier.c">
-      <Filter>参考</Filter>
-    </ClCompile>
-    <ClCompile Include="参考\himenoBMT_t.c">
-      <Filter>参考</Filter>
-    </ClCompile>
-    <ClCompile Include="参考\sdot_simd.c">
-      <Filter>参考</Filter>
-    </ClCompile>
-    <ClCompile Include="参考\thread4.cpp">
-      <Filter>参考</Filter>
-    </ClCompile>
     <ClCompile Include="PrgbCtrl.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -120,15 +102,21 @@
     <None Include="DOC\操作マニュアル.xlsx">
       <Filter>DOC</Filter>
     </None>
-    <None Include="参考\Makefile">
-      <Filter>参考</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\CPU.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
     <Image Include="res\StressCPU.ico">
       <Filter>リソース ファイル</Filter>
     </Image>
-    <Image Include="cpuimg.bmp">
+    <Image Include="res\CPUNEW.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\amd_cpu.jpg">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="res\intel_cpu.jpg">
       <Filter>リソース ファイル</Filter>
     </Image>
   </ItemGroup>

@@ -26,6 +26,10 @@ namespace SCPU
 	extern std::mutex mtx_flps;
 	// 単精度演算消費時間サンプリング実行中フラグ排他オブジェクト
 	extern std::mutex mtx_flpssmpflg;
+	// プログレスバー更新フラグ排他
+	extern std::mutex mtx_prgbar;
+	// 乱数表示フラグ排他
+	extern std::mutex mtx_rnddisp;
 	///////////////////////////////////////////////////////////////////
 	/// <summary>
 	/// 一時的にイベント無効フラグを設定する
