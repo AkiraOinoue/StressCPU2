@@ -70,16 +70,10 @@ namespace MT
 			auto var1 = mt();
 			auto var2 = mt();
 			auto var3 = mt();
-			double d = (double)var1 * 1.987654F;
-			//double e = (double)var2 * 1.012345F;
-			double e = (double)d * 1.012345F;
+			double d = (double)var1 * 1.987654;
+			double e = (double)d * 1.012345;
 			for (ULONG ii = 0; ii < max_count; ii++)
 			{
-				// ”{¸“x‰‰ŽZ
-				/*
-				d = d + (e*var3);
-				d /= d;
-				*/
 				d *= e;
 				d /= e;
 				d += e;
@@ -271,14 +265,10 @@ namespace MT
 	double MultiThread::GetThreadTimes(int thrdID)
 	{
 		// ˆ—ŽžŠÔ‚ªÝ’è‚³‚ê‚é‚Ü‚Å‘Ò‚Â
-		double caltimer;
-		for (int ii = 0; ii < 10; ii++)
+		double caltimer = 0.0;
+		for (; caltimer <= 0.0;)
 		{
 			caltimer = this->GetCalTimer(thrdID);
-			if (caltimer > 0.0)
-			{
-				break;
-			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 		return caltimer;

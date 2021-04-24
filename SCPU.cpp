@@ -207,8 +207,6 @@ namespace SCPU
 			// 各実行中スレッドのストレス処理時間を集計して平均値を算出
 			// 実行スレッド処理時間合計値
 			double flpsTm = 0.0;
-			// 実行スレッド数
-			int ExecThread = 0;
 			for (int ii = 0; ii < max_count; ii++)
 			{
 				// 実行中のスレッドのみ消費時間を採取
@@ -216,15 +214,12 @@ namespace SCPU
 				{
 					// スレッド処理時間取得
 					flpsTm += strc->hmultiThrd->GetThreadTimes(ii);
-					// 実行スレッド数カウントアップ
-					ExecThread++;
 				}
 				// 1m秒待ち
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			// ストレス処理時間の平均値を算出
-			// カウントした実行スレッド数を設定
-			strc->hmultiThrd->SetUpdateCounter(ExecThread);
+			// 実行スレッド数
+			int ExecThread = strc->hmultiThrd->GetUpdateCounter();
 			// 実行中スレッド数で割る
 			flpsTm /= (double)ExecThread;
 			// 平均値消費時間を設定
@@ -366,6 +361,8 @@ namespace SCPU
 	/// FLOPS値のMIN/MAXとそれぞれの単位文字を返す
 	/// リアルタイムFLOPSとMAX及びMINがかけ離れたら
 	/// 一旦リアルタイムFLOPS値に設定する。
+	/// リアルタイムFLOPSとの差が50%以上の場合は
+	/// リアルタイムFLOPS値に設定する
 	/// </summary>
 	/// <param name="flops_var">取得した演算消費時間</param>
 	/// <param name="min_var">MIN値</param>

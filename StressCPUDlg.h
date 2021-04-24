@@ -8,8 +8,9 @@
 // StressCPUDlg.h : ヘッダー ファイル
 // Designed and Implemented by Akira Oinoue
 // Email:davinci1958@docomonet.jp
+// 2021.4 ver 1.2.0 FLOPS値調整
 // 2021.2 ver 1.1.0 プログレスバー追加
-// 2020.6 ver 1.0.0 初回開発版
+// 2020.6 ver 1.0.0
 // ※）スレッドの割り当てについては、以下のサイトを参考にしました。
 // 山本ワールドさんありがとう
 // http://yamatyuu.net/computer/program/vc2013/thread4/index.html

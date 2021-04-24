@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #define D_OUTER (100000)
-#define D_INNER (67821)
+#define D_INNER (5042) // FLOPS’l’²®—p‚Ì’l
 #define D_MAX_THRD_CNT (16)
 namespace MT
 {
