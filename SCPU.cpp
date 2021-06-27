@@ -7,6 +7,13 @@ namespace SCPU
 	std::mutex g_mtx_[D_MAX_THRD_CNT];
 	// GUI制御用排他オブジェクト
 	std::mutex mtx_scpu;
+	std::mutex mtx_Flops;
+	std::mutex mtx_BU_scpu;
+	std::mutex mtx_ExecAllFlag;
+	std::mutex mtx_scpu_MaxThrdCount;
+	std::mutex mtx_ThreadEndFlg;
+	// GUI制御用排他オブジェクト2
+	std::mutex mtx_scpu2;
 	// スレッド計算速度情報収集の排他オブジェクト
 	std::mutex mtx_flps;
 	// 単精度演算消費時間サンプリング実行中フラグ排他オブジェクト
@@ -31,13 +38,15 @@ namespace SCPU
 	{
 		std::string svar = "";
 		SCPU::SetThreadEnd(false);
-		int stat;
+		MT::e_Status stat;
 		bool PrgRunFlg = true;
 		for (; GetThreadEnd() == false;)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+			std::this_thread::sleep_for(std::chrono::milliseconds(307));
 			stat = strc->hmultiThrd->GetStatus(thridx);
-			if (stat == MT::e_Status::st_sleep)
+			if (stat == MT::e_Status::st_sleep || // 休止
+				stat == MT::e_Status::st_end	  // 終了
+				)
 			{
 				// プログレスバー表示終了
 				if (PrgRunFlg == false)
@@ -49,7 +58,7 @@ namespace SCPU
 				}
 				continue;
 			}
-			else if (stat == MT::e_Status::st_running)
+			else if (stat == MT::e_Status::st_running) // 実行中
 			{
 				// 乱数表示ON
 				if (strc->GetThreadRndDispFlg() == TRUE)
@@ -121,14 +130,16 @@ namespace SCPU
 				// １回のみ実行
 				MultiThreadMgrSub(strc);
 				RunFlg = true;
+				break;
 			}
 			// 一括待機状態
 			/// 全スレッド終了チェック
 			if (GetThreadEnd() == true)
 			{
+				RunFlg = false;
 				break;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+			std::this_thread::sleep_for(std::chrono::milliseconds(311));
 		}
 	}
 	/// <summary>
@@ -143,27 +154,35 @@ namespace SCPU
 		int disp_flg = 1; // 1=表示、0=空白
 		for (;;)
 		{
-			if (disp_flg)
+			// スレッド稼働フラグ
+			if (strc->GetInitExec() == false)
 			{
-				StMsg = "スレッドは";
+				if (disp_flg)
+				{
+					StMsg = "スレッドは休止中";
+				}
+				else
+				{
+					StMsg = "";
+				}
 			}
 			else
 			{
-				StMsg = "起動可能";
+				if (disp_flg)
+				{
+					StMsg = "スレッドは";
+				}
+				else
+				{
+					StMsg = "実行中・・・";
+				}
 			}
+			disp_flg ^= 1; // 1/0 反転
 			// スレッド状態表示設定
 			strc->SetST_ThreadStatus(StMsg);
 			// 表示待ち
 			// 0.5秒毎に出力
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			disp_flg ^= 1; // 1/0 反転
-			/// 全スレッド終了チェック
-			if (GetThreadEnd() == true)
-			{
-				// スレッド状態表示設定
-				strc->SetST_ThreadStatus("スレッドは停止中");
-				break;
-			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(503));
 		}
 	}
 	/// <summary>
@@ -173,7 +192,7 @@ namespace SCPU
 	bool GetThreadEnd()
 	{
 		// GUI制御用排他オブジェクト
-		std::lock_guard<std::mutex> lock(mtx_scpu);
+		std::lock_guard<std::mutex> lock(mtx_ThreadEndFlg);
 		return ThreadEndFlg;
 	}
 	/// <summary>
@@ -183,7 +202,7 @@ namespace SCPU
 	void SetThreadEnd(bool var)
 	{
 		// GUI制御用排他オブジェクト
-		std::lock_guard<std::mutex> lock(mtx_scpu);
+		std::lock_guard<std::mutex> lock(mtx_ThreadEndFlg);
 		ThreadEndFlg = var;
 	}
 	/// <summary>
@@ -200,8 +219,8 @@ namespace SCPU
 			// サンプリング実行中フラグONか？
 			if (strc->GetFlpsSamplingFlg() == false)
 			{
-				// 1m秒待ち
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				// m秒待ち
+				std::this_thread::sleep_for(std::chrono::milliseconds(311));
 				continue;
 			}
 			// 各実行中スレッドのストレス処理時間を集計して平均値を算出
@@ -248,7 +267,7 @@ namespace SCPU
 		strc->SetFlpsSamplingFlg(true);
 		for (; SCPU::GetThreadEnd() == false;)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+			std::this_thread::sleep_for(std::chrono::milliseconds(307));
 			// 単精度演算消費時間サンプリング実行中はFLOPS計算はしない
 			if (strc->GetFlpsSamplingFlg() == true)
 			{
@@ -332,6 +351,7 @@ namespace SCPU
 			// サンプリング完了後にOFFにされる
 			strc->SetFlpsSamplingFlg(true);
 		}
+		st_RunThreadCount = 0;
 	}
 	/// <summary>
 	/// 誤差補正処理

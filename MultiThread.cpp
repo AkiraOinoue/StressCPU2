@@ -17,6 +17,9 @@ namespace MT
 	std::mutex mtx_[D_MAX_THRD_CNT];
 	// 高負荷率可変排他オブジェクト
 	std::mutex mtx_strss;
+	std::mutex mtx_thrdCounter;
+	std::mutex mtx_MTM_Tbl_size;
+	std::mutex mtx_RunningCount;
 	// マルチスレッド終了カウンタ
 	int thrdCounter = 0;
 	// 高負荷率可変数
@@ -39,7 +42,7 @@ namespace MT
 	int GetthrdCounter()
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_thrdCounter);
 		return thrdCounter;
 	}
 	/// <summary>
@@ -102,14 +105,14 @@ namespace MT
 		// プログレスバーコントロールを開始
 		//thrd->
 		// 経過時間を初期化
-		for (int stat = e_Status::st_sleep;
+		for (e_Status stat = e_Status::st_sleep;
 			stat != e_Status::st_end;
-			stat = thrd->GetStatus(idx)
+			stat = (e_Status)thrd->GetStatus(idx)
 			)
 		{
 			if (stat == e_Status::st_sleep)
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::sleep_for(std::chrono::milliseconds(3));
 				continue;
 			}
 			// 演算値を乱数発生
@@ -161,7 +164,7 @@ namespace MT
 	// 該当するスレッドのステータスと優先度をコントロールする
 	void MultiThread::CtrlThread(
 		int thrdID,
-		int status
+		MT::e_Status status
 	)
 	{
 		// スレッドのステータス設定
@@ -214,7 +217,7 @@ namespace MT
 		return this->MTM_Tbl[thrdID].endflg;
 	}
 	// マルチスレッドのステータス取得
-	int MultiThread::GetStatus(int thrdID)
+	e_Status MultiThread::GetStatus(int thrdID)
 	{
 		// 参照する前にロックを取得する
 		std::lock_guard<std::mutex> lock(mtx_[thrdID]);
@@ -222,14 +225,22 @@ namespace MT
 		return this->MTM_Tbl[thrdID].status;
 	}
 	// ステータス反転
-	int MultiThread::GetReverse(int thrdID)
+	MT::e_Status MultiThread::GetReverse(int thrdID)
 	{
 		// MT::e_Status::st_sleep <---> MT::e_Status::st_running
-		int st = this->GetStatus(thrdID) ^ MT::e_Status::st_for_xor;
+		MT::e_Status st = this->GetStatus(thrdID);
+		if (st == MT::e_Status::st_sleep)
+		{
+			st = MT::e_Status::st_running;
+		}
+		else if (st == MT::e_Status::st_running)
+		{
+			st = MT::e_Status::st_sleep;
+		}
 		return st;
 	}
 	// スレッドステータス設定取得
-	void MultiThread::SetStatus(int thrdID, int var)
+	void MultiThread::SetStatus(int thrdID, MT::e_Status var)
 	{
 		// 参照する前にロックを取得する
 		std::lock_guard<std::mutex> lock(mtx_[thrdID]);
@@ -300,7 +311,7 @@ namespace MT
 	size_t MultiThread::GetMthrSize()
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_MTM_Tbl_size);
 		size_t max_counter = this->MTM_Tbl.size();
 		return max_counter;
 	}
@@ -322,35 +333,35 @@ namespace MT
 	void MultiThread::SetUpdateCounter(int var)
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_RunningCount);
 		this->m_RunningCount = var;
 	}
 	// 現在実行中スレッドのカウントを取得
 	int MultiThread::GetUpdateCounter()
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_RunningCount);
 		return this->m_RunningCount;
 	}
 	// 現在実行中のスレッド数をプラス
 	void MultiThread::PlusCounter()
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_RunningCount);
 		this->m_RunningCount++;
 	}
 	// 現在実行中のスレッド数をマイナス
 	void MultiThread::MinusCounter()
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_RunningCount);
 		this->m_RunningCount--;
 	}
 	// 現在実行中のスレッド数をゼロにする
 	void MultiThread::ZeroCounter()
 	{
 		// 参照する前にロックを取得する
-		std::lock_guard<std::mutex> lock(mtx_strss);
+		std::lock_guard<std::mutex> lock(mtx_RunningCount);
 		this->m_RunningCount = 0;
 	}
 }

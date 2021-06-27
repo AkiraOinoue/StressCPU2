@@ -54,19 +54,8 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_CPU);
 	// ストレスマルチスレッド管理
 	this->hmultiThrd = new MT::MultiThread;
-	// ストレススレッド監視用スレッド起動
-	this->hMultiThreadMgr = new std::thread(
-		SCPU::MultiThreadMgr,
-		this
-	);
-	// 基準優先度を優先度クラスより2だけ低く設定
-	const int thread_pri = THREAD_PRIORITY_LOWEST;
-	SetThreadPriority(
-		this->hMultiThreadMgr->native_handle(),
-		thread_pri
-	);
 	// スレッド数設定
-	this->m_MaxThrdCount = this->m_cpuinfo.GetPhysCores();
+	this->m_MaxThrdCount = this->m_cpuinfo.GetLogicProcessorCnt();
 	if (this->m_MaxThrdCount > D_MAX_THRD_CNT)
 	{
 		CString cthrcnt = "";
@@ -83,6 +72,33 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 			MB_ICONEXCLAMATION
 		);
 		this->m_MaxThrdCount = D_MAX_THRD_CNT;
+	}
+	// 全スレッド分の乱数・プログレスバー更新スレッド起動
+	this->SetMaxThrdCount(this->m_MaxThrdCount);
+	// 乱数表示用スレッド実行フラグ
+	this->SetExecAllFlag(TRUE);
+	// ストレススレッド監視用スレッド起動
+	this->hMultiThreadMgr = new std::thread(
+		SCPU::MultiThreadMgr,
+		this
+	);
+	// 基準優先度を優先度クラスより2だけ低く設定
+	const int thread_pri = THREAD_PRIORITY_LOWEST;
+	SetThreadPriority(
+		this->hMultiThreadMgr->native_handle(),
+		thread_pri
+	);
+	// PCの最大のスレッド数分のスレッドを休止で実行
+	const int max_count = this->GetMaxThrdCount();
+	for (int ii = 0; ii < max_count; ii++)
+	{
+		// 非同期スレッドを起動
+		this->hmultiThrd->ExecThread(ii);
+		// スレッド状態をスリープ状態に設定
+		this->hmultiThrd->CtrlThread(
+			ii,
+			MT::e_Status::st_sleep
+		);
 	}
 	// カレントディレクトリ設定
 	this->m_CurrentPath = fs::current_path();
@@ -158,6 +174,8 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHK_PRGBAR, chk_PrgBar);
 	DDX_Control(pDX, IDC_CHK_RNDVAL, chk_RndVal);
 	DDX_Control(pDX, IDC_CPU_IMG, m_CPU_IMG);
+	DDX_Control(pDX, ID_RESET, m_Btn_Reset);
+	DDX_Control(pDX, IDC_ST_CPUCNT2, m_ST_LProcCnt);
 }
 
 BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
@@ -190,6 +208,7 @@ BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
 	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_CHK_PRGBAR, &CStressCPUDlg::OnClickedChkPrgbar)
 	ON_BN_CLICKED(IDC_CHK_RNDVAL, &CStressCPUDlg::OnClickedChkRndval)
+	ON_BN_CLICKED(ID_RESET, &CStressCPUDlg::OnClickedBuReset)
 END_MESSAGE_MAP()
 
 // CStressCPUDlg メッセージ ハンドラー
@@ -241,29 +260,19 @@ BOOL CStressCPUDlg::OnInitDialog()
 	// スレッド毎の乱数表示チェックボックスON
 	this->chk_RndVal.SetCheck(TRUE);
 	// ストレス対象数選択リスト初期化
-	int ii = 0;
-	for (const auto stvec : this->m_StVector)
+	int ii = 1;
+	for (const auto& stvec : this->m_StVector)
 	{
-		if (ii >= this->m_MaxThrdCount)
+		if (ii > this->m_MaxThrdCount)
 		{
 			break;
 		}
 		CString var;
-		var.Format("%02d", ii+1);
-		this->m_COM_Thread.InsertString(ii, var.GetString());
+		var.Format("%02d", ii);
+		this->m_COM_Thread.AddString(var.GetString());
 		ii++;
 	}
-	this->m_COM_Thread.SetCurSel(this->m_MaxThrdCount-1);
-	// CPU負荷率タイトル
-	// Unused
-	this->m_ST_Stress.ShowWindow(SW_HIDE);
-	// CPU負荷率操作
-	// Unused
-	this->m_COM_Stress.ShowWindow(SW_HIDE);
-	//this->m_COM_Stress.InsertString(0,"Max");
-	//this->m_COM_Stress.InsertString(1,"Medium");
-	//this->m_COM_Stress.InsertString(2,"Low");
-	//this->m_COM_Stress.SetCurSel(0);
+	this->m_COM_Thread.SetCurSel(this->m_MaxThrdCount - 1);
 	MT::SetStressCtrl(D_INNER);
 	// 一括待機を無効
 	this->m_BU_AllSleep.EnableWindow(FALSE);
@@ -273,6 +282,8 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->m_BU_XorThrd.EnableWindow(FALSE);
 	// 初期一括実行
 	this->m_BU_ALL_Exec.EnableWindow(TRUE);
+	// リセットボタンを非活性
+	this->m_Btn_Reset.EnableWindow(FALSE);
 	// 待機ボタンコントロールをベクター初期化
 	this->m_CH_Idles.push_back(&this->m_CH_Idle01);
 	this->m_CH_Idles.push_back(&this->m_CH_Idle02);
@@ -299,9 +310,15 @@ BOOL CStressCPUDlg::OnInitDialog()
 	// コア数表示
 	CString tmpCpu = "";
 	tmpCpu.Format("%2d", 
-		this->m_MaxThrdCount		// コア数
+		this->m_cpuinfo.GetPhysCoreCnt()
 	);
 	this->m_ST_CpuCnt.SetWindowTextA(tmpCpu);
+	// 論理プロセッサ数表示
+	CString logPrc = "";
+	logPrc.Format("%02d",
+		this->m_cpuinfo.GetLogicProcessorCnt()
+	);
+	this->m_ST_LProcCnt.SetWindowTextA(logPrc);
 	// スレッド乱数表示初期化
 	for (auto var : this->m_StVector)
 	{
@@ -311,6 +328,27 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->m_CPU_IMG.GetWindowRect(&this->m_cpu_rect);
 	// 各コントロールのツールチップ設定
 	this->SetCtrlToolTips();
+	// スレッド監視プロセスは稼働中
+	SCPU::SetThreadEnd(false);
+	// スレッド状態表示起動
+	static std::thread* StatThrdHandler =
+		new std::thread(
+			SCPU::ThreadStatMsg,
+			this
+		);
+	// 基準優先度を優先度クラスより2だけ低く設定
+	const int thread_pri = THREAD_PRIORITY_LOWEST;
+	SetThreadPriority(
+		StatThrdHandler->native_handle(),
+		thread_pri
+	);
+	/// 各スレッドの計算処理時間の平均値を収集（時間[nano]）
+	/// 0.5秒毎に収集し、平均値を取得する
+	this->FlpsGetCollectCalculationVolume();
+	// FLOPS表示スレッド
+	// 0.5秒毎に更新
+	// 全スレッドが終了するまで無限にループ
+	this->FlpsDispValue();
 
 	return TRUE;  // フォーカスをコントロールに設定した場合を除き、TRUE を返します。
 }
@@ -337,6 +375,8 @@ void CStressCPUDlg::SetCtrlToolTips(void)
 	this->SetAddToolTips(&this->m_BU_AllSleep, "全てのスレッドを休止状態にします。");
 	// 休止/実行反転
 	this->SetAddToolTips(&this->m_BU_XorThrd, "全てのスレッドの実行／休止状態を反転します。");
+	// リセットボタン
+	this->SetAddToolTips(&this->m_Btn_Reset, "全てのスレッドを停止し、スレッド数を再選択可能にします。");
 	// 実行チェックボックス
 	for (const auto& var : this->m_CH_Idles)
 	{
@@ -412,23 +452,14 @@ HCURSOR CStressCPUDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+////////////////////////////////////////////
 // スレッド準備
-// 最初の一回のみ有効
 void CStressCPUDlg::OnClickedBuAllExec()
 {
-	// 初期起動実行フラグ
-	this->m_InitExec = true;
+	// リセットボタンを活性
+	this->m_Btn_Reset.EnableWindow(TRUE);
+	// プルダウンメニューで選択したスレッド数
 	int max_count = this->GetMaxThrdCount();
-	for (int ii = 0; ii < max_count; ii++)
-	{
-		// 非同期スレッドを起動
-		this->hmultiThrd->ExecThread(ii);
-		// スレッド状態をスリープ状態に設定
-		this->hmultiThrd->CtrlThread(
-			ii,
-			MT::e_Status::st_sleep
-		);
-	}
 	// 各スレッドの実行OFF
 	int ii = 0;
 	for (auto& var : this->m_CH_Idles)
@@ -437,6 +468,10 @@ void CStressCPUDlg::OnClickedBuAllExec()
 		if (ii < max_count)
 		{
 			var->EnableWindow(TRUE);
+		}
+		else
+		{
+			break;
 		}
 		ii++;
 	}
@@ -452,78 +487,42 @@ void CStressCPUDlg::OnClickedBuAllExec()
 	this->SetBU_XorThrd(TRUE);
 	// 一括実行フラグON
 	this->SetExecAllFlag(TRUE);
-	// スレッド状態表示起動
-	static auto StatThrdHandler =
-		new std::thread(
-			SCPU::ThreadStatMsg,
-			this
-		);
-	// 基準優先度を優先度クラスより2だけ低く設定
-	const int thread_pri = THREAD_PRIORITY_LOWEST;
-	SetThreadPriority(
-		StatThrdHandler->native_handle(),
-		thread_pri
-	);
-	/// 各スレッドの計算処理時間の平均値を収集（時間[nano]）
-	/// 0.5秒毎に収集し、平均値を取得する
-	this->FlpsGetCollectCalculationVolume();
-	// FLOPS表示スレッド
-	// 0.5秒毎に更新
-	// 全スレッドが終了するまで無限にループ
-	this->FlpsDispValue();
 	// CPU画像表示
 	this->setPictureControl(this->m_cpuinfo);
 }
 // 一括休止ボタン
 void CStressCPUDlg::OnClickedBuAllSleep()
 {
-	static std::thread* thrHnd = nullptr;
-	int max_count = this->GetMaxThrdCount();
-	for (int ii = 0; ii < max_count; ii++)
-	{
-		this->hmultiThrd->CtrlThread(
-			ii,
-			MT::e_Status::st_sleep
-		);
-		// 各待機チェックをON＆無効
-		this->SetCH_Idles(ii, FALSE, TRUE);
-	}
+	// スレッド稼働フラグOFF
+	this->SetInitExec(false);
+	// スレッドチェックボックス休止・有効
+	this->SetThrdCheckCtrl(
+		MT::e_Status::st_sleep,
+		FALSE,
+		TRUE
+	);
 	// 現在実行中スレッドのカウントをゼロにする
 	this->hmultiThrd->ZeroCounter();
-	// 一定時間クリックベントを無効にする
-	thrHnd = nullptr;
-	thrHnd = new std::thread(
-		SCPU::EventWait,
-		&this->m_BU_AllSleep,
-		(UINT32)D_WAIT_TIME
-	);
+	// 一定時間クリックイベントを無効にする
+	this->WaitActiveCtrl(&this->m_BU_AllSleep);
 }
 // 一括実行ボタン
 void CStressCPUDlg::OnClickedBuAllWake()
 {
-	static std::thread* thrHnd = nullptr;
-	int max_count = this->GetMaxThrdCount();
-	for (int ii = 0; ii < max_count; ii++)
-	{
-		// 復帰状態に設定
-		this->hmultiThrd->CtrlThread(
-			ii,
-			MT::e_Status::st_running
-		);
-		// 各待機チェックをON＆有効
-		this->SetCH_Idles(ii, TRUE, TRUE);
-	}
+	// スレッド稼働フラグON
+	this->SetInitExec(true);
+	// スレッドチェックボックス実行中・有効
+	this->SetThrdCheckCtrl(
+		MT::e_Status::st_running,
+		TRUE,
+		TRUE
+	);
 	// 一括実行フラグON
 	this->SetExecAllFlag(TRUE);
 	// 現在実行中スレッドのカウントを設定する
-	this->hmultiThrd->SetUpdateCounter(max_count);
+	this->hmultiThrd->SetUpdateCounter(this->GetMaxThrdCount());
 	// 一定時間クリックベントを無効にする
-	thrHnd = nullptr;
-	thrHnd = new std::thread(
-		SCPU::EventWait,
-		&this->m_BU_AllWake,
-		(UINT32)D_WAIT_TIME
-	);
+	this->WaitActiveCtrl(&this->m_BU_AllWake);
 }
 // 休止／実行反転
 void CStressCPUDlg::OnClickedBuXorThread()
@@ -535,7 +534,7 @@ void CStressCPUDlg::OnClickedBuXorThread()
 	{
 		// 現在のスレッド状態を反転
 		// MT::e_Status::st_sleep <---> MT::e_Status::st_running
-		int st = this->hmultiThrd->GetReverse(ii);
+		auto st = this->hmultiThrd->GetReverse(ii);
 		this->hmultiThrd->CtrlThread(
 			ii,
 			st
@@ -557,13 +556,21 @@ void CStressCPUDlg::OnClickedBuXorThread()
 		// 待機／実行チェックボックス切替
 		this->SetCH_Idles(ii, chkbx_sw, TRUE);
 	}
+	// wait
+	std::this_thread::sleep_for(std::chrono::microseconds(17));
+	// スレッド停止・起動表示切替
+	if (this->hmultiThrd->GetUpdateCounter() == 0)
+	{
+		// スレッドは停止中
+		this->SetInitExec(false);
+	}
+	else
+	{
+		// スレッドは実行中
+		this->SetInitExec(true);
+	}
 	// 一定時間クリックベントを無効にする
-	thrHnd = nullptr;
-	thrHnd = new std::thread(
-		SCPU::EventWait,
-		&this->m_BU_XorThrd,
-		(UINT32)D_WAIT_TIME
-	);
+	this->WaitActiveCtrl(&this->m_BU_XorThrd);
 }
 // プログレスバー実行
 void CStressCPUDlg::PrgBarRun(int idx)
@@ -612,21 +619,21 @@ void CStressCPUDlg::SetCH_Idles(int idx, BOOL chk, BOOL enbl)
 void CStressCPUDlg::SetBU_AllWake(BOOL enbl)
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_BU_scpu);
 	this->m_BU_AllWake.EnableWindow(enbl);
 }
 // 一括待機チェックの有効／無効
 void CStressCPUDlg::SetBU_AllSleep(BOOL enbl)
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_BU_scpu);
 	this->m_BU_AllSleep.EnableWindow(enbl);
 }
 // 待機／復帰反転ボタンの有効／無効
 void CStressCPUDlg::SetBU_XorThrd(BOOL enbl)
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_BU_scpu);
 	this->m_BU_XorThrd.EnableWindow(enbl);
 }
 // スレッド乱数ベクター設定
@@ -640,8 +647,18 @@ void CStressCPUDlg::SetStVector(int idx, const char* strRnd)
 int CStressCPUDlg::GetMaxThrdCount()
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu_MaxThrdCount);
 	return this->m_MaxThrdCount;
+}
+/// <summary>
+/// 最大対象スレッド数設定
+/// </summary>
+/// <param name="thrdCnt">最大スレッド数</param>
+void CStressCPUDlg::SetMaxThrdCount(int thrdCnt)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu_MaxThrdCount);
+	this->m_MaxThrdCount = thrdCnt;
 }
 /// <summary>
 /// SwitchThread
@@ -650,7 +667,6 @@ int CStressCPUDlg::GetMaxThrdCount()
 /// <param name="tID">スレッドID</param>
 void CStressCPUDlg::SwitchThread(int tID)
 {
-	static std::thread* thrHnd = nullptr;
 	// 休止設定
 	if (this->m_CH_Idles[tID]->GetCheck() == FALSE)
 	{
@@ -673,13 +689,20 @@ void CStressCPUDlg::SwitchThread(int tID)
 		// スレッド監視ON
 		this->SetExecAllFlag(TRUE);
 	}
+	// wait
+	std::this_thread::sleep_for(std::chrono::microseconds(23));
+	if (this->hmultiThrd->GetUpdateCounter() == 0)
+	{
+		// スレッド停止状態
+		this->SetInitExec(false);
+	}
+	else
+	{
+		// スレッド実行中状態
+		this->SetInitExec(true);
+	}
 	// 一定時間クリックベントを無効にする
-	thrHnd = nullptr;
-	thrHnd = new std::thread(
-		SCPU::EventWait,
-		this->m_CH_Idles[tID],
-		(UINT32)D_WAIT_TIME
-	);
+	this->WaitActiveCtrl(this->m_CH_Idles[tID]);
 }
 #pragma region スレッド毎の実行ボタン
 // スレッド毎の実行ボタン 01
@@ -783,7 +806,7 @@ void CStressCPUDlg::OnClickedChIdle16()
 BOOL CStressCPUDlg::GetExecAllFlag()
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_ExecAllFlag);
 	// 一括実行フラグ
 	return this->m_ExecAllFlag;
 }
@@ -791,7 +814,7 @@ BOOL CStressCPUDlg::GetExecAllFlag()
 void CStressCPUDlg::SetExecAllFlag(BOOL var)
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_ExecAllFlag);
 	// 一括実行フラグ
 	this->m_ExecAllFlag = var;
 }
@@ -808,10 +831,17 @@ void CStressCPUDlg::SetST_ThreadStatus(CString stmsg)
 /// すべてのスレッドを停止して閉じる
 void CStressCPUDlg::OnBnClickedEnding()
 {
-	// 全スレッドお休み設定
-	this->OnClickedBuAllSleep();
-	// スレッド監視プロセスを終了
-	SCPU::SetThreadEnd(true);
+	// 全スレッド終了設定
+	// スレッドチェックボックス休止・無効
+	this->SetThrdCheckCtrl(
+		MT::e_Status::st_sleep,
+		FALSE,
+		FALSE
+	);
+	// 現在実行中スレッドのカウントをゼロにする
+	this->hmultiThrd->ZeroCounter();
+	// スレッド停止
+	this->SetInitExec(false);
 	// 終了メッセージ
 	auto CEnd = new CDialogEnding();
 	CEnd->DoModal();
@@ -842,8 +872,10 @@ void CStressCPUDlg::OnSelchangeComThread()
 {
 	// 選択された値を取得
 	auto selvar = this->m_COM_Thread.GetCurSel() + 1;
+	//
+	//this->WaitActiveCtrl(&this->m_COM_Thread);
 	// 最大対象スレッド数設定
-	this->m_MaxThrdCount = selvar;
+	this->SetMaxThrdCount(selvar);
 }
 // バージョン情報表示
 void CStressCPUDlg::OnClickedBuVersion()
@@ -886,7 +918,8 @@ void CStressCPUDlg::FlpsGetCollectCalculationVolume(void)
 void CStressCPUDlg::FlpsDispValue(void)
 {
 	// FLOPS表示スレッド
-	static auto hThread = new std::thread(
+	static std::thread* hThread = nullptr;
+	hThread = new std::thread(
 		SCPU::FlopsDispValueThread,
 		this
 	);
@@ -904,7 +937,7 @@ void CStressCPUDlg::SetSTFlops(
 )
 {
 	// 参照する前にロックを取得する
-	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu);
+	std::lock_guard<std::mutex> lock(SCPU::mtx_Flops);
 	cst.SetWindowTextA(stvar);
 }
 // 単精度演算消費時間サンプリング実行フラグ設定
@@ -923,6 +956,7 @@ bool CStressCPUDlg::GetFlpsSamplingFlg(void) const
 }
 
 // コントロールの色を変更する
+//スレッドの状態表示色を変える
 HBRUSH CStressCPUDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
@@ -942,7 +976,7 @@ HBRUSH CStressCPUDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		{
 		case IDC_ST_THRD_STAT: // スレッド準備状態
 			//スレッドは停止中
-			if (this->m_InitExec == false)
+			if (this->GetInitExec() == false)
 			{
 				// 停止中
 				// HotPink
@@ -1002,7 +1036,6 @@ BOOL CStressCPUDlg::GetThreadRndDispFlg(void)
 // プログレスバー更新の実行・停止
 void CStressCPUDlg::OnClickedChkPrgbar()
 {
-	static std::thread* thrHnd;
 	// 更新実行
 	if (this->chk_PrgBar.GetCheck() == TRUE)
 	{
@@ -1014,17 +1047,11 @@ void CStressCPUDlg::OnClickedChkPrgbar()
 		this->SetPrgBarUpdateFlg(FALSE);
 	}
 	// 一定時間クリックベントを無効にする
-	thrHnd = nullptr;
-	thrHnd = new std::thread(
-		SCPU::EventWait,
-		&this->chk_PrgBar,
-		(UINT32)D_WAIT_TIME
-	);
+	this->WaitActiveCtrl(&this->chk_PrgBar);
 }
 // スレッド毎の乱数表示の実行・停止
 void CStressCPUDlg::OnClickedChkRndval()
 {
-	static std::thread* thrHnd;
 	// 表示実行
 	if (this->chk_RndVal.GetCheck() == TRUE)
 	{
@@ -1036,12 +1063,7 @@ void CStressCPUDlg::OnClickedChkRndval()
 		this->SetThreadRndDispFlg(FALSE);
 	}
 	// 一定時間クリックベントを無効にする
-	thrHnd = nullptr;
-	thrHnd = new std::thread(
-		SCPU::EventWait,
-		&this->chk_RndVal,
-		(UINT32)D_WAIT_TIME
-	);
+	this->WaitActiveCtrl(&this->chk_RndVal);
 }
 /// <summary>
 /// ピクチャーコントロールへの描画処理
@@ -1101,4 +1123,117 @@ void CStressCPUDlg::setPictureControl(CPUID& cpuid)
 	cbmp->DeleteObject();
 	bmpDC.DeleteDC();
 	ReleaseDC(cdc);
+}
+// リセットボタン
+// 全てのスレッドを停止、MAXスレッドを再選択可能
+void CStressCPUDlg::OnClickedBuReset()
+{
+	// 全てのスレッドを休止・無効
+	this->SetThrdCheckCtrl(
+		MT::e_Status::st_sleep,
+		FALSE,
+		FALSE
+	);
+	// 現在実行中スレッドのカウントをゼロにする
+	this->hmultiThrd->ZeroCounter();
+	// 最大スレッド数選択無効化
+	this->m_COM_Thread.EnableWindow(TRUE);
+	// 一括待機を無効
+	this->m_BU_AllSleep.EnableWindow(FALSE);
+	// 一括復帰を無効
+	this->m_BU_AllWake.EnableWindow(FALSE);
+	// 待機／復帰反転を無効
+	this->m_BU_XorThrd.EnableWindow(FALSE);
+	// スレッド準備ボタンを有効
+	this->m_BU_ALL_Exec.EnableWindow(TRUE);
+	// スレッド乱数表示初期化
+	this->SetRndInitial();
+	/////////////////////////////////////////////////////////////////
+	// スレッド終了状態にする
+	// 表示色をピンクにする
+	this->SetInitExec(false);
+	// リセットボタンを非活性
+	this->m_Btn_Reset.EnableWindow(FALSE);
+}
+/// <summary>
+/// スレッド稼働フラグ設定
+/// </summary>
+/// <param name="flg">スレッド稼働フラグ
+/// true：稼働中
+/// fase：停止中
+/// </param>
+void CStressCPUDlg::SetInitExec(bool flg)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu2);
+	this->m_InitExec = flg;
+}
+/// <summary>
+/// スレッド稼働フラグ取得
+/// </summary>
+/// <param name="">なし</param>
+/// <returns>スレッド稼働フラグ</returns>
+bool CStressCPUDlg::GetInitExec(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu2);
+	return this->m_InitExec;
+}
+/// <summary>
+/// スレッドステータス変更と
+/// チェックボックス変更・活性・非活性
+/// </summary>
+/// <param name="thrdStat">スレッドの状態指定
+/// st_sleep：休止
+/// st_running：実行中
+/// st_end：終了（通常は使用しない）
+/// </param>
+/// <param name="chk">TRUE:チェックON、FALSE：チェックOFF</param>
+/// <param name="enbl">TRUE:有効、FALSE：無効</param>
+void CStressCPUDlg::SetThrdCheckCtrl(
+	MT::e_Status thrdStat,
+	const BOOL chk,
+	const BOOL enbl
+)
+{
+	const int max_count = this->GetMaxThrdCount();
+	for (int ii = 0; ii < max_count; ii++)
+	{
+		// スレッドの状態を設定
+		this->hmultiThrd->CtrlThread(
+			ii,
+			thrdStat
+		);
+		// 各待機チェックをON/OFF＆有効/無効
+		this->SetCH_Idles(ii, chk, enbl);
+	}
+}
+/// <summary>
+/// スレッド乱数表示の初期化
+/// </summary>
+/// <param name="">なし</param>
+void CStressCPUDlg::SetRndInitial(void)
+{
+	for (const auto& var : this->m_StVector)
+	{
+		var->SetWindowTextA(this->cpu_vender.c_str());
+	}
+}
+/// <summary>
+/// コントロールを一定時間非活性
+/// </summary>
+/// <param name="lpbtnctrl">対象のコントロールポインタ</param>
+/// <param name="wait_time_ms">非活性時間(ms)：デフォルト500ms</param>
+void CStressCPUDlg::WaitActiveCtrl(
+	CButton* lpbtnctrl,
+	UINT32 wait_time_ms
+)
+{
+	// 一定時間クリックイベントを無効にする
+	static std::thread* thrHnd;
+	thrHnd = new std::thread(
+		SCPU::EventWait,
+		lpbtnctrl,
+		wait_time_ms
+	);
 }

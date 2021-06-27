@@ -30,7 +30,7 @@ namespace MT
 	/// <summary>
 	/// スレッドステータス定義
 	/// </summary>
-	enum e_Status
+	enum class e_Status : int
 	{
 		st_sleep = 1,	// 一時停止
 		st_running = 2,	// 実行中
@@ -51,7 +51,7 @@ namespace MT
 		{}
 		std::thread* hThread;	// スレッドオブジェクト
 		std::thread* hRndDisp;	// スレッド乱数表示スレッドオブジェクト
-		int	status;				// 処理コントロール（0=終了、1=一時停止、2=実行中）
+		e_Status	status;				// 処理コントロール（0=終了、1=一時停止、2=実行中）
 		bool endflg;
 		std::string var_rnd;	// スレッド毎の乱数
 		double caltimer;		// ストレス処理時間（nano秒=10^-9=1/1,000,000,000）
@@ -94,18 +94,18 @@ namespace MT
 		// 該当するスレッドのステータスと優先度をコントロールする
 		void CtrlThread(
 			int thrdID,
-			int status
+			MT::e_Status status
 		);
 		// スレッドの終了フラグを設定
 		void SetEndFlg(int thrdID, bool var);
 		// スレッドの終了フラグを取得
 		bool GetEndFlg(int thrdID);
 		// スレッドステータス設定取得
-		void SetStatus(int thrdID, int var);
+		void SetStatus(int thrdID, MT::e_Status var);
 		// マルチスレッドのステータス取得
-		int GetStatus(int thrdID);
+		MT::e_Status GetStatus(int thrdID);
 		// ステータス反転
-		int GetReverse(int thrdID);
+		MT::e_Status GetReverse(int thrdID);
 		// マルチスレッドテーブルのサイズを取得
 		size_t GetMthrSize();
 		// スレッドポインタを取得

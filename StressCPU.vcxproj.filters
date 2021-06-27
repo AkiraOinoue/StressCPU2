@@ -119,5 +119,11 @@
     <Image Include="res\intel_cpu.jpg">
       <Filter>リソース ファイル</Filter>
     </Image>
+    <Image Include="E:\vs_app\StressCPU2\res\StressCPU.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
+    <Image Include="e:\vs_app\stresscpu2\res\CPUNEW.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

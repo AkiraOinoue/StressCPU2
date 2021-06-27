@@ -2,6 +2,7 @@
 // Microsoft Visual C++ で生成されたインクルード ファイル。
 // StressCPU.rc で使用
 //
+#define IDCANCEL2                       3
 #define IDD_STRESSCPU_DIALOG            102
 #define IDR_MAINFRAME                   128
 #define IDD_DLG_VERSION                 130
@@ -82,6 +83,7 @@
 #define IDC_CH_IDLE13                   1073
 #define IDC_CH_IDLE14                   1074
 #define IDC_ST_GUID13                   1075
+#define IDC_ST_CNT_ITEM2                1076
 #define IDC_STATIC_VerInfo              1077
 #define IDC_PROGRESS1                   1078
 #define IDC_PROGRESS2                   1079
@@ -102,6 +104,8 @@
 #define IDC_CHK_PRGBAR                  1094
 #define IDC_CHK_RNDVAL                  1095
 #define IDC_CPU_IMG                     1096
+#define ID_RESET                        1097
+#define IDC_ST_CPUCNT2                  1098
 
 // Next default values for new objects
 // 
@@ -109,7 +113,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1097
+#define _APS_NEXT_CONTROL_VALUE         1099
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -22,6 +22,13 @@ namespace SCPU
 	extern std::mutex g_mtx_[D_MAX_THRD_CNT];
 	// GUI制御用排他オブジェクト
 	extern std::mutex mtx_scpu;
+	extern std::mutex mtx_Flops;
+	extern std::mutex mtx_BU_scpu;
+	extern std::mutex mtx_ExecAllFlag;
+	extern std::mutex mtx_scpu_MaxThrdCount;
+	extern std::mutex mtx_ThreadEndFlg;
+	// GUI制御用排他オブジェクト2
+	extern std::mutex mtx_scpu2;
 	// スレッド計算速度情報収集の排他オブジェクト
 	extern std::mutex mtx_flps;
 	// 単精度演算消費時間サンプリング実行中フラグ排他オブジェクト

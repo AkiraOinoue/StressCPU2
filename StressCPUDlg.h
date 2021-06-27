@@ -38,7 +38,7 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html
 #include "MultiThread.h"
 #include "CPUID.h"
 #include "PrgbCtrl.h"
-#define D_WAIT_TIME (500)
+#define D_WAIT_TIME (509)
 //#define D_MAX_THRD_CNT (16)
 namespace fs = std::filesystem;
 // CStressCPUDlg ダイアログ
@@ -139,6 +139,11 @@ public:
 	double GetFlpsCalTimerEven(void);
 	// 最大対象スレッド数取得
 	int GetMaxThrdCount();
+	/// <summary>
+	/// 最大対象スレッド数設定
+	/// </summary>
+	/// <param name="thrdCnt">最大スレッド数</param>
+	void SetMaxThrdCount(int thrdCnt);
 	std::vector<CButton*>	m_CH_Idles;
 	/// <summary>
 	/// SetCH_Idles
@@ -161,6 +166,50 @@ public:
 		CString stvar,
 		CStatic& cst
 	);
+	/// <summary>
+	/// スレッドステータス変更と
+	/// チェックボックス変更・活性・非活性
+	/// </summary>
+	/// <param name="thrdStat">スレッドの状態指定
+	/// st_sleep：休止
+	/// st_running：実行中
+	/// st_end：終了（通常は使用しない）
+	/// </param>
+	/// <param name="chk">TRUE:チェックON、FALSE：チェックOFF</param>
+	/// <param name="enbl">TRUE:有効、FALSE：無効</param>
+	void SetThrdCheckCtrl(
+		MT::e_Status thrdStat,
+		const BOOL chk,
+		const BOOL enbl
+	);
+	/// <summary>
+	/// スレッド乱数表示の初期化
+	/// </summary>
+	/// <param name="">なし</param>
+	void SetRndInitial(void);
+	/// <summary>
+	/// コントロールを一定時間非活性
+	/// </summary>
+	/// <param name="lpbtnctrl">対象のコントロールポインタ</param>
+	/// <param name="wait_time_ms">非活性時間(ms)：デフォルト500ms</param>
+	void WaitActiveCtrl(
+		CButton* lpbtnctrl,
+		UINT32 wait_time_ms = D_WAIT_TIME
+	);
+	/// <summary>
+	/// スレッド稼働フラグ設定
+	/// </summary>
+	/// <param name="flg">スレッド稼働フラグ
+	/// true：稼働中
+	/// fase：停止中
+	/// </param>
+	void SetInitExec(bool flg);
+	/// <summary>
+	/// スレッド稼働フラグ取得
+	/// </summary>
+	/// <param name="">なし</param>
+	/// <returns>スレッド稼働フラグ</returns>
+	bool GetInitExec(void);
 	// プログレスバー更新フラグ
 	BOOL PrgBarUpdateFlg;
 	// スレッド毎の乱数表示フラグ
@@ -344,4 +393,9 @@ public:
 	// ツールチップ表示イベント
 	// 仮想関数を追加で作成
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnClickedBuReset();
+	// ストレス状態をリセットする
+	CButton m_Btn_Reset;
+	// 論理プロセッサ数
+	CStatic m_ST_LProcCnt;
 };

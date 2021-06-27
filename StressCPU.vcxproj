@@ -248,6 +248,8 @@
     <None Include="res\StressCPU.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="e:\vs_app\stresscpu2\res\CPUNEW.ico" />
+    <Image Include="E:\vs_app\StressCPU2\res\StressCPU.ico" />
     <Image Include="res\amd_cpu.jpg">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
