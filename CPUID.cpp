@@ -231,48 +231,6 @@ void CPUID::cpuID(_T_Register& regs, unsigned i)
 {
 	::__cpuid((int*)&regs, (int)i);
 }
-#ifdef _USED
-/// <summary>
-/// 物理コア数を取得
-/// </summary>
-/// <returns></returns>
-int CPUID::GetPhysCores()
-{
-	return std::thread::hardware_concurrency();
-}
-#endif
-#ifdef _USED
-/// <summary>
-/// 物理コア数を取得
-/// </summary>
-/// <returns>物理コア数</returns>
-/// <remark>AMD RYZEN5 1600AFでは物理コア数12個となってしまう（未使用）
-/// </remark>
-int CPUID::GetPhysCores()
-{
-	int physcore = 0;
-	// Logical core count per CPU
-	_T_Register regs;
-	::memset(&regs, NULL, sizeof(regs));
-	this->cpuID(regs, 1);
-	//unsigned logical = (regs[1] >> 16) & 0xff; // EBX[23:16]
-	//unsigned cores = logical;
-	auto cpuVendor = this->GetVendor();
-	if (cpuVendor == "GenuineIntel")
-	{
-		// Get DCP cache info
-		this->cpuID(regs, 4);
-		physcore = ((regs.eax >> 26) & 0x3f) + 1; // EAX[31:26] + 1
-	}
-	else if (cpuVendor == "AuthenticAMD") {
-		// Get NC: Number of CPU cores - 1
-		this->cpuID(regs, 0x80000008);
-		physcore = ((unsigned)(regs.ecx & 0xff)) + 1; // ECX[7:0] + 1
-	}
-	//physcore = cores;
-	return physcore;
-}
-#endif
 /// <summary>
 /// CPUベンダー名取得
 /// </summary>

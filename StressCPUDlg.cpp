@@ -146,7 +146,6 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ST_CPU_BRAND, m_ST_CpuBrand);
 	DDX_Control(pDX, IDC_ST_CPUVEN, m_ST_CpuVen);
 	DDX_Control(pDX, IDC_ST_THRD_STAT, m_ST_ThrdStat);
-	DDX_Control(pDX, IDC_COM_STRESS, m_COM_Stress);
 	DDX_Control(pDX, IDC_COM_THREAD, m_COM_Thread);
 	DDX_Control(pDX, IDC_ST_FLOPS, m_ST_Flops);
 	DDX_Control(pDX, IDC_ST_FPUNIT, m_ST_FPUNIT);
@@ -154,7 +153,6 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ST_FLOPS_MIN, m_ST_FlopsMIN);
 	DDX_Control(pDX, IDC_ST_FPUNIT_MAX, m_ST_FPUNIT_MAX);
 	DDX_Control(pDX, IDC_ST_FPUNIT_MIN, m_ST_FPUNIT_MIN);
-	DDX_Control(pDX, IDC_ST_Stress, m_ST_Stress);
 	DDX_Control(pDX, IDC_PROGRESS1, Prgb01);
 	DDX_Control(pDX, IDC_PROGRESS2, Prgb02);
 	DDX_Control(pDX, IDC_PROGRESS3, Prgb03);
@@ -202,7 +200,6 @@ BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BU_ALL_WAKE, &CStressCPUDlg::OnClickedBuAllWake)
 	ON_BN_CLICKED(IDC_BU_XOR, &CStressCPUDlg::OnClickedBuXorThread)
 	ON_BN_CLICKED(IDCANCEL, &CStressCPUDlg::OnBnClickedEnding)
-	ON_CBN_SELCHANGE(IDC_COM_STRESS, &CStressCPUDlg::OnSelchangeComStress)
 	ON_CBN_SELCHANGE(IDC_COM_THREAD, &CStressCPUDlg::OnSelchangeComThread)
 	ON_BN_CLICKED(IDC_BU_VERSION, &CStressCPUDlg::OnClickedBuVersion)
 	ON_WM_CTLCOLOR()
@@ -847,25 +844,6 @@ void CStressCPUDlg::OnBnClickedEnding()
 	CEnd->DoModal();
 	// 本体操作ダイアログを閉じる
 	CDialogEx::OnCancel();
-}
-// CPU負荷率制御スレッド
-// unused
-void CStressCPUDlg::OnSelchangeComStress()
-{
-	CString var = "";
-	this->m_COM_Stress.GetWindowTextA(var);
-	if (var == "Max")
-	{
-		MT::SetStressCtrl(D_INNER*100);
-	}
-	else if (var == "Medium")
-	{
-		MT::SetStressCtrl(D_INNER);
-	}
-	else if (var == "Low")
-	{
-		MT::SetStressCtrl(D_INNER / 100);
-	}
 }
 // 最大スレッド数選択コンボボックスのイベント処理
 void CStressCPUDlg::OnSelchangeComThread()

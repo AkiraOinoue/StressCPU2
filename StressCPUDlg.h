@@ -324,9 +324,6 @@ public:
 	// スレッド停止・実行メッセージ
 	CStatic m_ST_ThrdStat;
 	afx_msg void OnBnClickedEnding();
-	// 負荷率コントロール
-	CComboBox m_COM_Stress;
-	afx_msg void OnSelchangeComStress();
 	// 最大スレッド数選択コンボボックス
 	CComboBox m_COM_Thread;
 	afx_msg void OnSelchangeComThread();
@@ -343,8 +340,6 @@ public:
 	CStatic m_ST_FPUNIT_MAX;
 	// FLOPSMIN単位
 	CStatic m_ST_FPUNIT_MIN;
-	// 負荷率選択タイトル
-	CStatic m_ST_Stress;
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	// プログレスバー
 	CProgressCtrl Prgb01;
