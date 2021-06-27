@@ -4,7 +4,9 @@
 //・スレッドを個別に（待機／復帰）切り替えるができます。
 //・全スレッドを一括で（待機／復帰）を反転できる。
 //・負荷スレッドは「スレッドの優先順位」を下げているので他のアプリへの負荷は軽減できる。
-//・最大論理コア数は12まで対応
+//・最大論理コア数は16まで対応
+// ●gihub url
+// https://github.com/AkiraOinoue/StressCPU2
 // StressCPUDlg.h : ヘッダー ファイル
 // Designed and Implemented by Akira Oinoue
 // Email:davinci1958@docomonet.jp
