@@ -106,6 +106,9 @@
 #define IDC_CPU_IMG                     1096
 #define ID_RESET                        1097
 #define IDC_ST_CPUCNT2                  1098
+#define IDC_FLPS_PROGRESS01             1099
+#define IDC_FLPS_PROGRESS02             1100
+#define IDC_FLPS_PROGRESS03             1101
 
 // Next default values for new objects
 // 
@@ -113,7 +116,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1099
+#define _APS_NEXT_CONTROL_VALUE         1102
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

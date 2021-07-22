@@ -23,6 +23,9 @@ namespace SCPU
 	// GUI制御用排他オブジェクト
 	extern std::mutex mtx_scpu;
 	extern std::mutex mtx_Flops;
+	extern std::mutex mtx_FlopsVar;
+	extern std::mutex mtx_FlopsMax;
+	extern std::mutex mtx_FlopsMin;
 	extern std::mutex mtx_BU_scpu;
 	extern std::mutex mtx_ExecAllFlag;
 	extern std::mutex mtx_scpu_MaxThrdCount;
@@ -79,6 +82,12 @@ namespace SCPU
 		double min_max_flops,
 		double per
 	);
+	/// <summary>
+	/// FLOPS用のプログレスバー更新スレッド
+	/// 実行中のスレッドが１つ以上あれば実行
+	/// </summary>
+	/// <param name="strc">CStressCPUDlgポインタ</param>
+	void FlopsProgressBarUpdate(CStressCPUDlg* strc);
 	// FLOPS表示スレッド
 	// 0.5秒毎に更新
 	// 全スレッドが終了するまで無限にループ

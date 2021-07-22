@@ -99,6 +99,12 @@ public:
 	std::vector<CStatic*>	m_StVector;
 	// プログレスバーコントロールベクター
 	std::vector<PrgbCtrl>	PrgBarCtl;
+	// FLOPS値リアル値のプログレスバー
+	PrgbCtrl* Flops_RealBar;
+	// FLOPS値MAX値のプログレスバー
+	PrgbCtrl* Flops_MAXBar;
+	// FLOPS値MIN値のプログレスバー
+	PrgbCtrl* Flops_MINBar;
 	// プログレスバー実行
 	void PrgBarRun(int idx);
 	// プログレスバー終了
@@ -368,7 +374,22 @@ public:
 	afx_msg void OnClickedChkRndval();
 	// CPU画像表示変数
 	CStatic m_CPU_IMG;
+	// FLOPS値設定
+	void SetFlopsVar(double var);
+	// FLOPS値取得
+	double GetFlopVar(void);
+	// FLOPS値MAX設定
+	void SetFlopsMax(double var);
+	// FLOPS値MAX取得
+	double GetFlopsMax(void);
+	// FLOPS値MIN設定
+	void SetFlopsMin(double var);
+	// FLOPS値MIN取得
+	double GetFlopsMin(void);
 private:
+	double m_Flops;
+	double m_FlopsMax;
+	double m_FlopsMin;
 	// コントロールのハンドル格納マップ
 	std::map<HWND, int>	m_CtrlMap;
 	// CPUIDベンダー表示
@@ -395,4 +416,10 @@ public:
 	CButton m_Btn_Reset;
 	// 論理プロセッサ数
 	CStatic m_ST_LProcCnt;
+	// FLOPS値リアル値
+	CProgressCtrl m_FLPSPRG01;
+	// FLOPS値MAX値
+	CProgressCtrl m_FLPSPRG02;
+	// FLOPS値MIN値
+	CProgressCtrl m_FLPSPRG03;
 };

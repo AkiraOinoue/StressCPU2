@@ -8,6 +8,9 @@ namespace SCPU
 	// GUI制御用排他オブジェクト
 	std::mutex mtx_scpu;
 	std::mutex mtx_Flops;
+	std::mutex mtx_FlopsVar;
+	std::mutex mtx_FlopsMax;
+	std::mutex mtx_FlopsMin;
 	std::mutex mtx_BU_scpu;
 	std::mutex mtx_ExecAllFlag;
 	std::mutex mtx_scpu_MaxThrdCount;
@@ -37,7 +40,6 @@ namespace SCPU
 	)
 	{
 		std::string svar = "";
-		SCPU::SetThreadEnd(false);
 		MT::e_Status stat;
 		bool PrgRunFlg = true;
 		for (; GetThreadEnd() == false;)
@@ -226,6 +228,9 @@ namespace SCPU
 			// 各実行中スレッドのストレス処理時間を集計して平均値を算出
 			// 実行スレッド処理時間合計値
 			double flpsTm = 0.0;
+			// 実行スレッド数
+			int ExecThread = strc->hmultiThrd->GetUpdateCounter();
+			int RunThrd = 0;
 			for (int ii = 0; ii < max_count; ii++)
 			{
 				// 実行中のスレッドのみ消費時間を採取
@@ -233,18 +238,68 @@ namespace SCPU
 				{
 					// スレッド処理時間取得
 					flpsTm += strc->hmultiThrd->GetThreadTimes(ii);
+					RunThrd++;
+				}
+				// 必要な数のスレッドの処理時間を合計した
+				if (RunThrd == ExecThread)
+				{
+					break;
 				}
 				// 1m秒待ち
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-			// 実行スレッド数
-			int ExecThread = strc->hmultiThrd->GetUpdateCounter();
 			// 実行中スレッド数で割る
 			flpsTm /= (double)ExecThread;
 			// 平均値消費時間を設定
 			strc->SetFlpsCalTimerEven(flpsTm);
 			// サンプリング実行中フラグOFF
 			strc->SetFlpsSamplingFlg(false);
+		}
+	}
+	/// <summary>
+	/// FLOPS用のプログレスバー更新スレッド
+	/// 実行中のスレッドが１つ以上あれば実行
+	/// </summary>
+	/// <param name="strc">CStressCPUDlgポインタ</param>
+	void FlopsProgressBarUpdate(CStressCPUDlg* strc)
+	{
+		bool EndExecFlg = false;
+		// MAX値FLOPSバー更新ステップ
+		strc->Flops_MAXBar->SetStep(1);
+		for (;;)
+		{
+			// 処理待ち
+			std::this_thread::sleep_for(std::chrono::milliseconds(3));
+			auto Flops = strc->GetFlopVar();
+			auto MaxVar = strc->GetFlopsMax();
+			auto MinVar = strc->GetFlopsMin();
+			// プログレスバー更新処理
+			if (Flops > 0.0)
+			{
+				EndExecFlg = false;
+				// リアル値FLOPSプログレスバー更新
+				strc->Flops_RealBar->SetFlopsRange(MaxVar);
+				strc->Flops_RealBar->SetFlops(Flops);
+				strc->Flops_RealBar->PrgbObj->SetBarColor(RGB(255, 0, 0));
+				// MAX値FLOPSバー更新
+				auto max_rate = strc->Flops_MAXBar->Inc();
+				// MAX値バーカラー更新
+				strc->Flops_MAXBar->SetBarG2OColor(max_rate);
+				// MIN値FLOPSプログレスバー更新
+				strc->Flops_MINBar->SetFlopsRange(MaxVar);
+				strc->Flops_MINBar->SetFlops(MinVar);
+				strc->Flops_MINBar->PrgbObj->SetBarColor(RGB(0, 0, 255));
+			}
+			else if (EndExecFlg == false)
+			{
+				// リアル値FLOPSプログレスバー更新
+				strc->Flops_RealBar->End();
+				// MAX値FLOPSプログレスバー更新
+				strc->Flops_MAXBar->End();
+				// MIN値FLOPSプログレスバー更新
+				strc->Flops_MINBar->End();
+				EndExecFlg = true;
+			}
 		}
 	}
 	/// <summary>
@@ -297,6 +352,8 @@ namespace SCPU
 					);
 					// 実行スレッド数保管
 					st_RunThreadCount = RunThreadCount;
+					// 改めてサンプリングを待つ 2021.07.17
+					continue;
 				}
 				// 高負荷率可変数(MT::GetStressCtrl()) x 外側ループ回数 x スレッド数
 				double d_inner = MT::GetStressCtrl();
@@ -313,6 +370,7 @@ namespace SCPU
 				}
 				else
 				{
+					// 実行中スレッドなし
 					Flops = 0.0;
 				}
 				//*******************************************************************
@@ -337,14 +395,22 @@ namespace SCPU
 				cvar.Format("%7.2f", Flops);
 				strc->SetSTFlops(cvar, strc->m_ST_Flops);
 				strc->SetSTFlops(cFPUnit, strc->m_ST_FPUNIT);
-				// MIN値FLOPS表示欄に出力
-				cvar.Format("%7.2f", MinVar);
-				strc->SetSTFlops(cvar, strc->m_ST_FlopsMIN);
-				strc->SetSTFlops(cMinUnit, strc->m_ST_FPUNIT_MIN);
 				// MAX値FLOPS表示欄に出力
 				cvar.Format("%7.2f", MaxVar);
 				strc->SetSTFlops(cvar, strc->m_ST_FlopsMAX);
 				strc->SetSTFlops(cMaxUnit, strc->m_ST_FPUNIT_MAX);
+				// MIN値FLOPS表示欄に出力
+				cvar.Format("%7.2f", MinVar);
+				strc->SetSTFlops(cvar, strc->m_ST_FlopsMIN);
+				strc->SetSTFlops(cMinUnit, strc->m_ST_FPUNIT_MIN);
+				// FLOPSグラフ表示(スレッド化)
+				strc->SetFlopsVar(Flops);
+				strc->SetFlopsMax(MaxVar);
+				strc->SetFlopsMin(MinVar);
+				static auto FlopsPrgBar = new std::thread(
+					FlopsProgressBarUpdate,
+					strc
+				);
 			}
 			// 単精度演算消費時間サンプリング実行中フラグをON
 			// FlopsMultiThreadCollectCalculationVolume()でFlpsSamplingFlgが参照され、
@@ -402,7 +468,7 @@ namespace SCPU
 		// 誤差補正率(%)
 		// リアルタイムFLOPS値とMAX値及びMIN値の誤差率が12.0%を超えた場合は強制的に
 		// リアルタイムFLOPS値に設定します。
-		static const double ajRate = 12.0;
+		static const double ajRate = 50.0;
 		// 比較用の値
 		static double MaxVar = 0.0;
 		static double MinVar = 0.0;
@@ -441,7 +507,7 @@ namespace SCPU
 		if (MaxVar == 0.0)
 		{
 			MaxVar = flops_var;
-			FlpsMinVar = var;
+			FlpsMaxVar = var;
 		}
 		if (MinVar == 0.0)
 		{
@@ -449,7 +515,7 @@ namespace SCPU
 			FlpsMinVar = var;
 		}
 		// MAXより大きいか
-		if (flops_var >= MaxVar)
+		if (flops_var > MaxVar)
 		{
 			MaxVar = flops_var;
 			FlpsMaxVar = var;
@@ -466,6 +532,7 @@ namespace SCPU
 		}
 		// リアルタイムFLOPSとの差が50%以上の場合は
 		// リアルタイムFLOPS値に設定する
+		// CPU不安定による補正
 		if (TRUE == IsAJustFlops(flops_var, MinVar, ajRate))
 		{
 			MinVar = flops_var;

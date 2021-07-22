@@ -174,6 +174,9 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CPU_IMG, m_CPU_IMG);
 	DDX_Control(pDX, ID_RESET, m_Btn_Reset);
 	DDX_Control(pDX, IDC_ST_CPUCNT2, m_ST_LProcCnt);
+	DDX_Control(pDX, IDC_FLPS_PROGRESS01, m_FLPSPRG01);
+	DDX_Control(pDX, IDC_FLPS_PROGRESS02, m_FLPSPRG02);
+	DDX_Control(pDX, IDC_FLPS_PROGRESS03, m_FLPSPRG03);
 }
 
 BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
@@ -235,6 +238,14 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->m_StVector.push_back(&this->m_ST_Guid14);
 	this->m_StVector.push_back(&this->m_ST_Guid15);
 	this->m_StVector.push_back(&this->m_ST_Guid16);
+	// FLOPS値リアル値のプログレスバー
+	this->Flops_RealBar = new PrgbCtrl(&this->m_FLPSPRG01);
+	// FLOPS値MAX値のプログレスバー
+	this->Flops_MAXBar = new PrgbCtrl(&this->m_FLPSPRG02);
+	// FLOPS値MIN値のプログレスバー
+	this->Flops_MINBar = new PrgbCtrl(&this->m_FLPSPRG03);
+	// MAX値FLOPSプログレスバーレンジ設定
+	this->Flops_MAXBar->SetFlopsRange(100);
 	// プログレスバーコントロールベクターの配列を生成
 	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb01));
 	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb02));
@@ -582,11 +593,6 @@ void CStressCPUDlg::PrgBarEnd(int idx)
 	// 参照する前にロックを取得する
 	std::lock_guard<std::mutex> lock(SCPU::g_mtx_[idx]);
 	this->PrgBarCtl[idx].End();
-	// プログレスバーの色設定
-	int Red = 128;
-	int Green = Red;
-	int Blue = Red;
-	this->PrgBarCtl[idx].PrgbObj->SetBarColor(RGB(Red, Green, Blue));
 }
 // プログレスバー更新
 void CStressCPUDlg::PrgBarUpdate(int idx)
@@ -1150,7 +1156,10 @@ void CStressCPUDlg::SetInitExec(bool flg)
 /// スレッド稼働フラグ取得
 /// </summary>
 /// <param name="">なし</param>
-/// <returns>スレッド稼働フラグ</returns>
+/// <returns>スレッド稼働フラグ
+/// true：稼働中
+/// fase：停止中
+/// </returns>
 bool CStressCPUDlg::GetInitExec(void)
 {
 	// 参照する前にロックを取得する
@@ -1214,4 +1223,46 @@ void CStressCPUDlg::WaitActiveCtrl(
 		lpbtnctrl,
 		wait_time_ms
 	);
+}
+// FLOPS値設定
+void CStressCPUDlg::SetFlopsVar(double var)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsVar);
+	this->m_Flops = var;
+}
+// FLOPS値取得
+double CStressCPUDlg::GetFlopVar(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsVar);
+	return this->m_Flops;
+}
+// FLOPS値MAX設定
+void CStressCPUDlg::SetFlopsMax(double var)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMax);
+	this->m_FlopsMax = var;
+}
+// FLOPS値MAX取得
+double CStressCPUDlg::GetFlopsMax(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMax);
+	return this->m_FlopsMax;
+}
+// FLOPS値MIN設定
+void CStressCPUDlg::SetFlopsMin(double var)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMin);
+	this->m_FlopsMin = var;
+}
+// FLOPS値MIN取得
+double CStressCPUDlg::GetFlopsMin(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMin);
+	return this->m_FlopsMin;
 }
