@@ -125,11 +125,11 @@ public:
 	int m_MaxPhysicalCore;
 	// 各スレッドの実行速度測定スレッド
 	std::thread* hFlpsPerThread;
-	// 単精度演算消費時間サンプリング実行フラグ
+	// 倍精度演算消費時間サンプリング実行フラグ
 	bool m_FlpsSamplingFlg;
-	// 単精度演算消費時間サンプリング実行フラグ設定
+	// 倍精度演算消費時間サンプリング実行フラグ設定
 	void SetFlpsSamplingFlg(bool var);
-	// 単精度演算消費時間サンプリング実行フラグ取得
+	// 倍精度演算消費時間サンプリング実行フラグ取得
 	bool GetFlpsSamplingFlg(void) const;
 	/// 各スレッドの計算処理時間の平均値を収集（時間[nano]）
 	/// 0.5秒毎に収集し、平均値を取得する

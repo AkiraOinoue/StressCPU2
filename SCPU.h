@@ -1,10 +1,10 @@
 #pragma once
 /*
-	■各スレッドの単精度演算消費時間の合計からFLOPSを割り出す
-	　１秒間に単精度演算を実行する回数＝FLOPS（Floating-Point Operations Per Second）
-	　TT＝全スレッドの単精度演算終了時間の合計（ns）
-	　FC＝単精度演算ループ回数（可変）
-	　FP＝4（１回当たりの単精度演算回数＝固定）
+	■各スレッドの倍精度演算消費時間の合計からFLOPSを割り出す
+	　１秒間に倍精度演算を実行する回数＝FLOPS（Floating-Point Operations Per Second）
+	　TT＝全スレッドの倍精度演算終了時間の合計（ns）
+	　FC＝倍精度演算ループ回数（可変）
+	　FP＝4（１回当たりの倍精度演算回数＝固定）
 	　TC＝全スレッド数（可変）
 	　GFLOPS（秒）＝(FC×FP×TC)/TT
 */
@@ -34,7 +34,7 @@ namespace SCPU
 	extern std::mutex mtx_scpu2;
 	// スレッド計算速度情報収集の排他オブジェクト
 	extern std::mutex mtx_flps;
-	// 単精度演算消費時間サンプリング実行中フラグ排他オブジェクト
+	// 倍精度演算消費時間サンプリング実行中フラグ排他オブジェクト
 	extern std::mutex mtx_flpssmpflg;
 	// プログレスバー更新フラグ排他
 	extern std::mutex mtx_prgbar;

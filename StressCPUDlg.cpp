@@ -36,7 +36,7 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_STRESSCPU_DIALOG, pParent),
 	m_ExecAllFlag(FALSE),	// 一括実行フラグ
 	m_InitExec(false),		// 初期起動実行フラグ
-	m_FlpsSamplingFlg(false),	// 単精度演算消費時間サンプリング実行フラグ
+	m_FlpsSamplingFlg(false),	// 倍精度演算消費時間サンプリング実行フラグ
 	FlpsCalCounter(0.0),
 	FlpsCalTimerEven(0.0),
 	hFlpsPerThread(nullptr),
@@ -924,14 +924,14 @@ void CStressCPUDlg::SetSTFlops(
 	std::lock_guard<std::mutex> lock(SCPU::mtx_Flops);
 	cst.SetWindowTextA(stvar);
 }
-// 単精度演算消費時間サンプリング実行フラグ設定
+// 倍精度演算消費時間サンプリング実行フラグ設定
 void CStressCPUDlg::SetFlpsSamplingFlg(bool var)
 {
 	// 参照する前にロックを取得する
 	std::lock_guard<std::mutex> lock(SCPU::mtx_flpssmpflg);
 	this->m_FlpsSamplingFlg = var;
 }
-// 単精度演算消費時間サンプリング実行フラグ取得
+// 倍精度演算消費時間サンプリング実行フラグ取得
 bool CStressCPUDlg::GetFlpsSamplingFlg(void) const
 {
 	// 参照する前にロックを取得する

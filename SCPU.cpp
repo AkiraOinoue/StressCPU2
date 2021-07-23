@@ -19,7 +19,7 @@ namespace SCPU
 	std::mutex mtx_scpu2;
 	// スレッド計算速度情報収集の排他オブジェクト
 	std::mutex mtx_flps;
-	// 単精度演算消費時間サンプリング実行中フラグ排他オブジェクト
+	// 倍精度演算消費時間サンプリング実行中フラグ排他オブジェクト
 	std::mutex mtx_flpssmpflg;
 	// プログレスバー更新フラグ排他
 	std::mutex mtx_prgbar;
@@ -316,14 +316,14 @@ namespace SCPU
 		CString cfps_min = "";
 		// 実行スレッド数保持
 		static int st_RunThreadCount;
-		// 単精度演算消費時間サンプリング実行中フラグをON
+		// 倍精度演算消費時間サンプリング実行中フラグをON
 		// FlopsMultiThreadCollectCalculationVolume()でFlpsSamplingFlgが参照され、
 		// サンプリング完了後にOFFにされる
 		strc->SetFlpsSamplingFlg(true);
 		for (; SCPU::GetThreadEnd() == false;)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(307));
-			// 単精度演算消費時間サンプリング実行中はFLOPS計算はしない
+			// 倍精度演算消費時間サンプリング実行中はFLOPS計算はしない
 			if (strc->GetFlpsSamplingFlg() == true)
 			{
 				continue;
@@ -412,7 +412,7 @@ namespace SCPU
 					strc
 				);
 			}
-			// 単精度演算消費時間サンプリング実行中フラグをON
+			// 倍精度演算消費時間サンプリング実行中フラグをON
 			// FlopsMultiThreadCollectCalculationVolume()でFlpsSamplingFlgが参照され、
 			// サンプリング完了後にOFFにされる
 			strc->SetFlpsSamplingFlg(true);
