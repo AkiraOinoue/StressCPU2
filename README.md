@@ -9,3 +9,5 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 プラットフォーム：Windows 10 64bit</br>
 アプリケーション：MFCスタティックリンク Win32API 32bit アプリケーション</br>
 操作は~doc/操作マニュアル.xlsxを参考にして下さい。</br>
+## 動作設定
+本体プログラムと同一フォルダに"StressCPU2/res"フォルダをコピーして下さい。
