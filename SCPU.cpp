@@ -294,6 +294,10 @@ namespace SCPU
 			{
 				RngMAX = MaxVar;
 			}
+			// FLOPS値MAXを表示
+			CString svar;
+			svar.Format("最大スケール：%.2f", RngMAX);
+			strc->m_ST_MaxValue.SetWindowTextA(svar.GetString());
 			// プログレスバー更新処理
 			if (Flops > 0.0)
 			{

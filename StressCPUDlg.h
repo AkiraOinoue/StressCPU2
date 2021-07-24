@@ -214,7 +214,7 @@ public:
 	/// コントロールを一定時間非活性
 	/// </summary>
 	/// <param name="lpbtnctrl">対象のコントロールポインタ</param>
-	/// <param name="wait_time_ms">非活性時間(ms)：デフォルト500ms</param>
+	/// <param name="wait_time_ms">非活性時間(ms)：デフォルト509ms</param>
 	void WaitActiveCtrl(
 		CButton* lpbtnctrl,
 		UINT32 wait_time_ms = D_WAIT_TIME
@@ -444,4 +444,6 @@ public:
 	CEdit m_EDT_FlopsMAX;
 	afx_msg void OnChangeEdtFlopsmax();
 	afx_msg void OnClickedChkFlopsmax();
+	// FLOPSのMAX値表示欄
+	CStatic m_ST_MaxValue;
 };

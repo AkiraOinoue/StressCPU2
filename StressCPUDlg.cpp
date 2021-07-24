@@ -179,6 +179,7 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FLPS_PROGRESS03, m_FLPSPRG03);
 	DDX_Control(pDX, IDC_CHK_FLOPSMAX, m_Chk_FlopsMAX);
 	DDX_Control(pDX, IDC_EDT_FLOPSMAX, m_EDT_FlopsMAX);
+	DDX_Control(pDX, IDC_ST_MAX_VALUE, m_ST_MaxValue);
 }
 
 BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
@@ -332,7 +333,7 @@ BOOL CStressCPUDlg::OnInitDialog()
 	);
 	this->m_ST_LProcCnt.SetWindowTextA(logPrc);
 	// FLOPS値MAXの初期値
-	this->m_EDT_FlopsMAX.SetWindowTextA("1000");
+	this->m_EDT_FlopsMAX.SetWindowTextA("500");
 	// スレッド乱数表示初期化
 	for (auto var : this->m_StVector)
 	{
@@ -1226,7 +1227,7 @@ void CStressCPUDlg::SetRndInitial(void)
 /// コントロールを一定時間非活性
 /// </summary>
 /// <param name="lpbtnctrl">対象のコントロールポインタ</param>
-/// <param name="wait_time_ms">非活性時間(ms)：デフォルト500ms</param>
+/// <param name="wait_time_ms">非活性時間(ms)：デフォルト509ms</param>
 void CStressCPUDlg::WaitActiveCtrl(
 	CButton* lpbtnctrl,
 	UINT32 wait_time_ms
@@ -1330,6 +1331,8 @@ void CStressCPUDlg::OnClickedChkFlopsmax()
 		// FLOPS値MAX入力欄を有効
 		this->m_EDT_FlopsMAX.SetReadOnly(FALSE);
 	}
+	// 一定時間クリックベントを無効にする
+	this->WaitActiveCtrl(&this->m_Chk_FlopsMAX, 503);
 }
 /// <summary>
 /// FLOPS値MAXを設定
