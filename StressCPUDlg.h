@@ -85,6 +85,21 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	/// <summary>
+	/// FLOPS値MAXチェックON/OFF取得
+	/// </summary>
+	/// <returns>チェックON/OFF</returns>
+	BOOL GetChkFlopsMAXLimited(void);
+	/// <summary>
+	/// FLOPS値MAXを設定
+	/// </summary>
+	/// <param name="var">MAX値</param>
+	void SetFlopsMAXLimited(int var);
+	/// <summary>
+	/// FLOPS値MAXを取得
+	/// </summary>
+	/// <returns>MAX値</returns>
+	int GetFlopsMAXLimited(void);
 	// ツールチップ
 	CToolTipCtrl m_toolTip;
 	// CPUインフォメーション
@@ -390,6 +405,7 @@ private:
 	double m_Flops;
 	double m_FlopsMax;
 	double m_FlopsMin;
+	int m_FlopsMAXLimited;
 	// コントロールのハンドル格納マップ
 	std::map<HWND, int>	m_CtrlMap;
 	// CPUIDベンダー表示
@@ -422,4 +438,10 @@ public:
 	CProgressCtrl m_FLPSPRG02;
 	// FLOPS値MIN値
 	CProgressCtrl m_FLPSPRG03;
+	// FLOPS値MAX指定チェックボックス
+	CButton m_Chk_FlopsMAX;
+	// FLOPS値MAX値入力欄
+	CEdit m_EDT_FlopsMAX;
+	afx_msg void OnChangeEdtFlopsmax();
+	afx_msg void OnClickedChkFlopsmax();
 };

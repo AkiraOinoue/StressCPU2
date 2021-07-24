@@ -11,6 +11,8 @@ namespace SCPU
 	std::mutex mtx_FlopsVar;
 	std::mutex mtx_FlopsMax;
 	std::mutex mtx_FlopsMin;
+	std::mutex mtx_FlopsMaxLimited;
+	std::mutex mtx_ChkFlopsMaxLimited;
 	std::mutex mtx_BU_scpu;
 	std::mutex mtx_ExecAllFlag;
 	std::mutex mtx_scpu_MaxThrdCount;
@@ -273,20 +275,41 @@ namespace SCPU
 			auto Flops = strc->GetFlopVar();
 			auto MaxVar = strc->GetFlopsMax();
 			auto MinVar = strc->GetFlopsMin();
+			// FLOPS値MAX指定があるか
+			double RngMAX = 0;
+			if (strc->GetChkFlopsMAXLimited() == TRUE)				
+			{
+				// FLOPSのMAXよりも指定レンジ幅の方が大きい時に採用
+				auto tmp_max = (double)strc->GetFlopsMAXLimited();
+				if (tmp_max > MaxVar)
+				{
+					RngMAX = tmp_max;
+				}
+				else
+				{
+					RngMAX = MaxVar;
+				}
+			}
+			else
+			{
+				RngMAX = MaxVar;
+			}
 			// プログレスバー更新処理
 			if (Flops > 0.0)
 			{
 				EndExecFlg = false;
 				// リアル値FLOPSプログレスバー更新
-				strc->Flops_RealBar->SetFlopsRange(MaxVar);
+				strc->Flops_RealBar->SetFlopsRange(RngMAX);
 				strc->Flops_RealBar->SetFlops(Flops);
 				strc->Flops_RealBar->PrgbObj->SetBarColor(RGB(255, 0, 0));
 				// MAX値FLOPSバー更新
-				auto max_rate = strc->Flops_MAXBar->Inc();
+				// FLOPS値MAXのレンジ設定
+				strc->Flops_MAXBar->SetFlopsRange(RngMAX);
+				auto max_rate = strc->Flops_MAXBar->Inc(MaxVar);
 				// MAX値バーカラー更新
 				strc->Flops_MAXBar->SetBarG2OColor(max_rate);
 				// MIN値FLOPSプログレスバー更新
-				strc->Flops_MINBar->SetFlopsRange(MaxVar);
+				strc->Flops_MINBar->SetFlopsRange(RngMAX);
 				strc->Flops_MINBar->SetFlops(MinVar);
 				strc->Flops_MINBar->PrgbObj->SetBarColor(RGB(0, 0, 255));
 			}

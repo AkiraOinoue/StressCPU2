@@ -26,6 +26,8 @@ namespace SCPU
 	extern std::mutex mtx_FlopsVar;
 	extern std::mutex mtx_FlopsMax;
 	extern std::mutex mtx_FlopsMin;
+	extern std::mutex mtx_FlopsMaxLimited;
+	extern std::mutex mtx_ChkFlopsMaxLimited;
 	extern std::mutex mtx_BU_scpu;
 	extern std::mutex mtx_ExecAllFlag;
 	extern std::mutex mtx_scpu_MaxThrdCount;

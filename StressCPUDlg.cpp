@@ -177,6 +177,8 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FLPS_PROGRESS01, m_FLPSPRG01);
 	DDX_Control(pDX, IDC_FLPS_PROGRESS02, m_FLPSPRG02);
 	DDX_Control(pDX, IDC_FLPS_PROGRESS03, m_FLPSPRG03);
+	DDX_Control(pDX, IDC_CHK_FLOPSMAX, m_Chk_FlopsMAX);
+	DDX_Control(pDX, IDC_EDT_FLOPSMAX, m_EDT_FlopsMAX);
 }
 
 BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
@@ -209,6 +211,8 @@ BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHK_PRGBAR, &CStressCPUDlg::OnClickedChkPrgbar)
 	ON_BN_CLICKED(IDC_CHK_RNDVAL, &CStressCPUDlg::OnClickedChkRndval)
 	ON_BN_CLICKED(ID_RESET, &CStressCPUDlg::OnClickedBuReset)
+	ON_EN_CHANGE(IDC_EDT_FLOPSMAX, &CStressCPUDlg::OnChangeEdtFlopsmax)
+	ON_BN_CLICKED(IDC_CHK_FLOPSMAX, &CStressCPUDlg::OnClickedChkFlopsmax)
 END_MESSAGE_MAP()
 
 // CStressCPUDlg メッセージ ハンドラー
@@ -327,6 +331,8 @@ BOOL CStressCPUDlg::OnInitDialog()
 		this->m_cpuinfo.GetLogicProcessorCnt()
 	);
 	this->m_ST_LProcCnt.SetWindowTextA(logPrc);
+	// FLOPS値MAXの初期値
+	this->m_EDT_FlopsMAX.SetWindowTextA("1000");
 	// スレッド乱数表示初期化
 	for (auto var : this->m_StVector)
 	{
@@ -385,6 +391,10 @@ void CStressCPUDlg::SetCtrlToolTips(void)
 	this->SetAddToolTips(&this->m_BU_XorThrd, "全てのスレッドの実行／休止状態を反転します。");
 	// リセットボタン
 	this->SetAddToolTips(&this->m_Btn_Reset, "全てのスレッドを停止し、スレッド数を再選択可能にします。");
+	// FLOPS値MAX入力欄
+	this->SetAddToolTips(&this->m_EDT_FlopsMAX, "FLOPS値のMAXを指定出来ます。(100以上10000以下)");
+	// FLOPS値MAXをプログレスバーに反映
+	this->SetAddToolTips(&this->m_Chk_FlopsMAX, "FLOPS値のMAXをプログレスバーに反映ON/OFFします。");
 	// 実行チェックボックス
 	for (const auto& var : this->m_CH_Idles)
 	{
@@ -1080,9 +1090,15 @@ void CStressCPUDlg::setPictureControl(CPUID& cpuid)
 	CImage img;
 	HRESULT ret = img.Load(cs);
 	if (img.IsNull()) {
+		CString msg;
+		msg.Format(
+			"画像の読み込み失敗：%sが見つかりません。\n"
+			"~StressCPU2/resフォルダを本体プログラムと同じフォルダにコピーして下さい。",
+			cs.GetString()
+		);
 		::MessageBox(
 			this->GetSafeHwnd(),
-			"画像の読み込み失敗",
+			msg.GetString(),
 			"CPU画像読み込み処理",
 			MB_ICONERROR
 		);
@@ -1265,4 +1281,83 @@ double CStressCPUDlg::GetFlopsMin(void)
 	// 参照する前にロックを取得する
 	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMin);
 	return this->m_FlopsMin;
+}
+
+// FLOPS値のMAX値を入力するイベント処理
+void CStressCPUDlg::OnChangeEdtFlopsmax()
+{
+	// TODO: これが RICHEDIT コントロールの場合、このコントロールが
+	// この通知を送信するには、CDialogEx::OnInitDialog() 関数をオーバーライドし、
+	// CRichEditCtrl().SetEventMask() を関数し呼び出します。
+	// OR 状態の ENM_CHANGE フラグをマスクに入れて呼び出す必要があります。
+
+	// TODO: ここにコントロール通知ハンドラー コードを追加してください。
+	CString var;
+	this->m_EDT_FlopsMAX.GetWindowTextA(var);
+	auto val = std::atoi(var.GetString());
+	if (val < 100 || 10000 < val)
+	{
+		// チェックボックスを無効にします。
+		this->m_Chk_FlopsMAX.EnableWindow(FALSE);
+		return;
+	}
+	else
+	{
+		// チェックボックスを有効にします。
+		this->m_Chk_FlopsMAX.EnableWindow(TRUE);
+		// メンバー変数にセット
+		this->SetFlopsMAXLimited(val);
+	}
+}
+
+// FLOPS値のMAX値の入力欄の制御
+void CStressCPUDlg::OnClickedChkFlopsmax()
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_ChkFlopsMaxLimited);
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+	if (this->m_Chk_FlopsMAX.GetCheck() == BST_CHECKED)
+	{
+		// チェックボックスの名称を有効に変更
+		this->m_Chk_FlopsMAX.SetWindowTextA("有効");
+		// FLOPS値MAX入力欄を無効
+		this->m_EDT_FlopsMAX.SetReadOnly(TRUE);
+	}
+	else
+	{
+		// チェックボックスの名称を無効に変更
+		this->m_Chk_FlopsMAX.SetWindowTextA("無効");
+		// FLOPS値MAX入力欄を有効
+		this->m_EDT_FlopsMAX.SetReadOnly(FALSE);
+	}
+}
+/// <summary>
+/// FLOPS値MAXを設定
+/// </summary>
+/// <param name="var">MAX値</param>
+void CStressCPUDlg::SetFlopsMAXLimited(int var)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMaxLimited);
+	this->m_FlopsMAXLimited = var;
+}
+/// <summary>
+/// FLOPS値MAXを取得
+/// </summary>
+/// <return>MAX値</return>
+int CStressCPUDlg::GetFlopsMAXLimited(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_FlopsMaxLimited);
+	return this->m_FlopsMAXLimited;
+}
+/// <summary>
+/// FLOPS値MAXチェックON/OFF取得
+/// </summary>
+/// <returns>チェックON/OFF</returns>
+BOOL CStressCPUDlg::GetChkFlopsMAXLimited(void)
+{
+	// 参照する前にロックを取得する
+	std::lock_guard<std::mutex> lock(SCPU::mtx_ChkFlopsMaxLimited);
+	return this->m_Chk_FlopsMAX.GetCheck();
 }

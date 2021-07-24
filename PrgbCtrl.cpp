@@ -62,6 +62,24 @@ UINT32 PrgbCtrl::Inc()
     return addval_int;
 }
 /// <summary>
+/// プログレスバー更新
+/// </summary>
+/// <param name="var">折り返し点</param>
+/// <returns></returns>
+UINT32 PrgbCtrl::Inc(double var)
+{
+    // 増分のパーセントを計算
+    this->m_incd += (double)this->m_IncVal;
+    double addval = this->m_incd;
+    UINT32 addval_int = (UINT32)addval;
+    this->PrgbObj->SetPos(addval_int);
+    if (this->m_incd >= (ULONG32)var)
+    {
+        this->m_incd = 0.0;
+    }
+    return addval_int;
+}
+/// <summary>
 /// FLOPS値MAX値設定
 /// </summary>
 /// <param name="flops_max">FLOPSのMAX値</param>

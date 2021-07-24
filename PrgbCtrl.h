@@ -46,6 +46,12 @@ public:
     /// <returns>進捗率(%)</returns>
     UINT32 Inc();
     /// <summary>
+    /// プログレスバー更新
+    /// </summary>
+    /// <param name="var">折り返し点</param>
+    /// <returns>進捗率(%)</returns>
+    UINT32 Inc(double var);
+    /// <summary>
     /// バーカラーを設定
     /// 初期値青から赤に変更する
     /// </summary>
