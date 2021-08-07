@@ -108,7 +108,7 @@ namespace SCPU
 			// 基準優先度を優先度クラスより2だけ低く設定します。
 			auto thread_pri = THREAD_PRIORITY_LOWEST;
 			SetThreadPriority(
-				strc->hmultiThrd->GetThrdNativeHnd(ii),
+				strc->hmultiThrd->GetThrdRndDispHnd(ii),
 				thread_pri
 			);
 		}
@@ -266,6 +266,8 @@ namespace SCPU
 	void FlopsProgressBarUpdate(CStressCPUDlg* strc)
 	{
 		bool EndExecFlg = false;
+		double ST_MAX_FLOPS = 0.0;
+
 		// MAX値FLOPSバー更新ステップ
 		strc->Flops_MAXBar->SetStep(1);
 		for (;;)
@@ -292,7 +294,12 @@ namespace SCPU
 			}
 			else
 			{
-				RngMAX = MaxVar;
+				// 前回のMAX FLOPSよりも大きければ更新
+				if (ST_MAX_FLOPS < MaxVar)
+				{
+					ST_MAX_FLOPS = MaxVar;
+				}
+				RngMAX = ST_MAX_FLOPS;
 			}
 			// FLOPS値MAXを表示
 			CString svar;
@@ -325,6 +332,7 @@ namespace SCPU
 				strc->Flops_MAXBar->End();
 				// MIN値FLOPSプログレスバー更新
 				strc->Flops_MINBar->End();
+				ST_MAX_FLOPS = 0.0;
 				EndExecFlg = true;
 			}
 		}
@@ -430,14 +438,28 @@ namespace SCPU
 				cvar.Format("%7.2f", MinVar);
 				strc->SetSTFlops(cvar, strc->m_ST_FlopsMIN);
 				strc->SetSTFlops(cMinUnit, strc->m_ST_FPUNIT_MIN);
-				// FLOPSグラフ表示(スレッド化)
+				// FLOPS値更新
 				strc->SetFlopsVar(Flops);
 				strc->SetFlopsMax(MaxVar);
 				strc->SetFlopsMin(MinVar);
+				// FLOPS値プログレスバー表示スレッド
+				// １度だけ実行
 				static auto FlopsPrgBar = new std::thread(
 					FlopsProgressBarUpdate,
 					strc
 				);
+				// 該当スレッドの占有優先度を設定する。
+				// 基準優先度を優先度クラスより2だけ低く設定します。
+				static auto SetFlgThrd = true;
+				if (SetFlgThrd == true)
+				{
+					auto thread_pri = THREAD_PRIORITY_LOWEST;
+					SetThreadPriority(
+						FlopsPrgBar->native_handle(),
+						thread_pri
+					);
+					SetFlgThrd = false;
+				}
 			}
 			// 倍精度演算消費時間サンプリング実行中フラグをON
 			// FlopsMultiThreadCollectCalculationVolume()でFlpsSamplingFlgが参照され、

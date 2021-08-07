@@ -153,6 +153,7 @@ namespace MT
 			this,
 			ID
 		);
+
 		// スレッドのハンドルを取り出す
 		auto handle = this->MTM_Tbl[ID].hThread->native_handle();
 		// CPUのスレッドに割り当てる
@@ -328,6 +329,13 @@ namespace MT
 		// 参照する前にロックを取得する
 		std::lock_guard<std::mutex> lock(mtx_[thrdID]);
 		return this->MTM_Tbl[thrdID].hThread->native_handle();
+	}
+	// 乱数表示スレッドのハンドルを取得
+	std::thread::native_handle_type MultiThread::GetThrdRndDispHnd(int thrdID)
+	{
+		// 参照する前にロックを取得する
+		std::lock_guard<std::mutex> lock(mtx_[thrdID]);
+		return this->MTM_Tbl[thrdID].hRndDisp->native_handle();
 	}
 	// 現在実行中スレッドのカウントを設定する
 	void MultiThread::SetUpdateCounter(int var)

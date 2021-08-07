@@ -41,8 +41,23 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html
 #include "CPUID.h"
 #include "PrgbCtrl.h"
 #define D_WAIT_TIME (509)
-//#define D_MAX_THRD_CNT (16)
+// ダイアログ幅拡張サイズ
+#define D_PLUS_WIDTH (340)
+// ダイアログ幅
+#define D_DLG_WIDTH (440+40)
+// ダイアログ高さ
+#define D_DLG_HEIGHT (675+50)
+// 部品間隔幅プラス
+#define D_CTRL_PLUS_WIDTH (80)
+// 部品間隔高さプラス
+#define D_CTRL_PLUS_HEIGHT (80)
 namespace fs = std::filesystem;
+// 部品のサイズ型
+typedef struct
+{
+	CStatic* lpST;
+	RECT rect;
+} _T_ST_RECT;
 // CStressCPUDlg ダイアログ
 class CStressCPUDlg : 
 	public CDialogEx
@@ -68,6 +83,22 @@ protected:
 // 実装
 protected:
 	/// <summary>
+	/// スレッド表示列数選択リスト作成
+	/// </summary>
+	/// <param name="var">最大スレッド数</param>
+	/// <returns>最小列数</returns>
+	int MakeThrdCMBList(int var);
+	/// <summary>
+	/// 部品の初期化
+	/// </summary>
+	/// <param name=""></param>
+	void SetCtrlInit(void);
+	/// <summary>
+	/// コントロールのベクターテーブル初期化
+	/// </summary>
+	/// <param name=""></param>
+	void VectorTableInit(void);
+	/// <summary>
 	/// 各コントロールのツールチップを設定
 	/// </summary>
 	/// <param name=""></param>
@@ -85,6 +116,31 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	/// <summary>
+	/// コントロール部品の配置テーブルを作成
+	/// </summary>
+	/// <param name="r_tbl">部品の配置ベクター</param>
+	/// <param name="r_rect">初期座標</param>
+	/// <param name="var">配置列宇数</param>
+	void MakeCordinateCtrl(
+		std::vector<RECT>& r_tbl,
+		const RECT r_rect,
+		const int var
+	);
+	/// <summary>
+	/// 部品のレイアウト
+	/// </summary>
+	/// <param name="var">列数</param>
+	/// <param name="cnt">スレッド数</param>
+	void SetLayOut(
+		const int var,
+		const int cnt
+	);
+	/// <summary>
+	/// ダイアログサイズを設定
+	/// </summary>
+	/// <param name="idx">0=標準、1=横長</param>
+	void SetDialogSize(int idx);
 	/// <summary>
 	/// FLOPS値MAXチェックON/OFF取得
 	/// </summary>
@@ -110,10 +166,22 @@ public:
 	BOOL GetExecAllFlag();
 	// 一括実行フラグ設定
 	void SetExecAllFlag(BOOL var);
-	// スレッド乱数ベクター
-	std::vector<CStatic*>	m_StVector;
+	// スレッドID表示欄コントロールベクター
+	std::vector<CStatic*>	m_StThredID;
 	// プログレスバーコントロールベクター
 	std::vector<PrgbCtrl>	PrgBarCtl;
+	// スレッド乱数ベクター
+	std::vector<CStatic*>	m_StThrdRnd;
+	// スレッド実行待機ボタンベクター
+	std::vector<CButton*>	m_CH_Idles;
+	// スレッドID表示サイズ
+	RECT r_StThredID;
+	// プログレスバーサイズ
+	RECT r_PrgBarCtl;
+	// スレッド乱数サイズ
+	RECT r_StThrdRnd;
+	// スレッド実行待機ボタンサイズ
+	RECT r_CH_Idles;
 	// FLOPS値リアル値のプログレスバー
 	PrgbCtrl* Flops_RealBar;
 	// FLOPS値MAX値のプログレスバー
@@ -167,7 +235,17 @@ public:
 	/// </summary>
 	/// <param name="thrdCnt">最大スレッド数</param>
 	void SetMaxThrdCount(int thrdCnt);
-	std::vector<CButton*>	m_CH_Idles;
+	/// <summary>
+	/// スレッド表示列数設定
+	/// </summary>
+	/// <param name="thrdCol">表示列数</param>
+	void SetThrdDispCol(int thrdCol);
+	/// <summary>
+	/// スレッド表示列数取得
+	/// </summary>
+	/// <param name="">なし</param>
+	/// <returns></returns>
+	int GetThrdDispCol(void);
 	/// <summary>
 	/// SetCH_Idles
 	/// 待機チェックのON/OFFと有効/無効
@@ -255,68 +333,70 @@ public:
 	CButton m_BU_AllWake;
 	// 乱数表示領域
 	CStatic m_ST_Guid01;
-	// 乱数表示領域
 	CStatic m_ST_Guid02;
-	// 乱数表示領域
 	CStatic m_ST_Guid03;
-	// 乱数表示領域
 	CStatic m_ST_Guid04;
-	// 乱数表示領域
 	CStatic m_ST_Guid05;
-	// 乱数表示領域
 	CStatic m_ST_Guid06;
-	// 乱数表示領域
 	CStatic m_ST_Guid07;
-	// 乱数表示領域
 	CStatic m_ST_Guid08;
-	// 乱数表示領域
 	CStatic m_ST_Guid09;
-	// 乱数表示領域
 	CStatic m_ST_Guid10;
-	// 乱数表示領域
 	CStatic m_ST_Guid11;
-	// 乱数表示領域
 	CStatic m_ST_Guid12;
-	// 乱数表示領域
 	CStatic m_ST_Guid13;
-	// 乱数表示領域
 	CStatic m_ST_Guid14;
-	// 乱数表示領域
 	CStatic m_ST_Guid15;
-	// 乱数表示領域
 	CStatic m_ST_Guid16;
-	// マルチスレッドの待機フラグ
+	CStatic m_ST_Guid17;
+	CStatic m_ST_Guid18;
+	CStatic m_ST_Guid19;
+	CStatic m_ST_Guid20;
+	CStatic m_ST_Guid21;
+	CStatic m_ST_Guid22;
+	CStatic m_ST_Guid23;
+	CStatic m_ST_Guid24;
+	CStatic m_ST_Guid25;
+	CStatic m_ST_Guid26;
+	CStatic m_ST_Guid27;
+	CStatic m_ST_Guid28;
+	CStatic m_ST_Guid29;
+	CStatic m_ST_Guid30;
+	CStatic m_ST_Guid31;
+	CStatic m_ST_Guid32;
+	// マルチスレッドの実行待機ボタン
 	CButton m_CH_Idle01;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle02;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle03;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle04;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle05;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle06;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle07;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle08;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle09;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle10;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle11;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle12;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle13;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle14;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle15;
-	// マルチスレッドの待機フラグ
 	CButton m_CH_Idle16;
+	CButton m_CH_Idle17;
+	CButton m_CH_Idle18;
+	CButton m_CH_Idle19;
+	CButton m_CH_Idle20;
+	CButton m_CH_Idle21;
+	CButton m_CH_Idle22;
+	CButton m_CH_Idle23;
+	CButton m_CH_Idle24;
+	CButton m_CH_Idle25;
+	CButton m_CH_Idle26;
+	CButton m_CH_Idle27;
+	CButton m_CH_Idle28;
+	CButton m_CH_Idle29;
+	CButton m_CH_Idle30;
+	CButton m_CH_Idle31;
+	CButton m_CH_Idle32;
 	// マルチスレッドの待機ON/OFFイベント処理
 	afx_msg void OnClickedChIdle01();
 	afx_msg void OnClickedChIdle02();
@@ -334,6 +414,23 @@ public:
 	afx_msg void OnClickedChIdle14();
 	afx_msg void OnClickedChIdle15();
 	afx_msg void OnClickedChIdle16();
+	afx_msg void OnClickedChIdle17();
+	afx_msg void OnClickedChIdle18();
+	afx_msg void OnClickedChIdle19();
+	afx_msg void OnClickedChIdle20();
+	afx_msg void OnClickedChIdle21();
+	afx_msg void OnClickedChIdle22();
+	afx_msg void OnClickedChIdle23();
+	afx_msg void OnClickedChIdle24();
+	afx_msg void OnClickedChIdle25();
+	afx_msg void OnClickedChIdle26();
+	afx_msg void OnClickedChIdle27();
+	afx_msg void OnClickedChIdle28();
+	afx_msg void OnClickedChIdle29();
+	afx_msg void OnClickedChIdle30();
+	afx_msg void OnClickedChIdle31();
+	afx_msg void OnClickedChIdle32();
+	//
 	afx_msg void OnClickedBuAllWake();
 	afx_msg void OnClickedBuXorThread();
 	// 待機／復帰反転ボタン
@@ -381,6 +478,22 @@ public:
 	CProgressCtrl Prgb14;
 	CProgressCtrl Prgb15;
 	CProgressCtrl Prgb16;
+	CProgressCtrl Prgb17;
+	CProgressCtrl Prgb18;
+	CProgressCtrl Prgb19;
+	CProgressCtrl Prgb20;
+	CProgressCtrl Prgb21;
+	CProgressCtrl Prgb22;
+	CProgressCtrl Prgb23;
+	CProgressCtrl Prgb24;
+	CProgressCtrl Prgb25;
+	CProgressCtrl Prgb26;
+	CProgressCtrl Prgb27;
+	CProgressCtrl Prgb28;
+	CProgressCtrl Prgb29;
+	CProgressCtrl Prgb30;
+	CProgressCtrl Prgb31;
+	CProgressCtrl Prgb32;
 	// プログレスバー更新有無切替
 	CButton chk_PrgBar;
 	// 乱数表示有無切替え
@@ -402,6 +515,10 @@ public:
 	// FLOPS値MIN取得
 	double GetFlopsMin(void);
 private:
+	// スレッド表示列数
+	int m_ThrdDispCol;
+	// ダイアログサイズのテーブル
+	std::map<int, RECT> m_DialogSize;
 	double m_Flops;
 	double m_FlopsMax;
 	double m_FlopsMin;
@@ -446,4 +563,43 @@ public:
 	afx_msg void OnClickedChkFlopsmax();
 	// FLOPSのMAX値表示欄
 	CStatic m_ST_MaxValue;
+	// スレッドID表示欄
+	CStatic m_ST_THR01;
+	CStatic m_ST_THR02;
+	CStatic m_ST_THR03;
+	CStatic m_ST_THR04;
+	CStatic m_ST_THR05;
+	CStatic m_ST_THR06;
+	CStatic m_ST_THR07;
+	CStatic m_ST_THR08;
+	CStatic m_ST_THR09;
+	CStatic m_ST_THR10;
+	CStatic m_ST_THR11;
+	CStatic m_ST_THR12;
+	CStatic m_ST_THR13;
+	CStatic m_ST_THR14;
+	CStatic m_ST_THR15;
+	CStatic m_ST_THR16;
+	CStatic m_ST_THR17;
+	CStatic m_ST_THR18;
+	CStatic m_ST_THR19;
+	CStatic m_ST_THR20;
+	CStatic m_ST_THR21;
+	CStatic m_ST_THR22;
+	CStatic m_ST_THR23;
+	CStatic m_ST_THR24;
+	CStatic m_ST_THR25;
+	CStatic m_ST_THR26;
+	CStatic m_ST_THR27;
+	CStatic m_ST_THR28;
+	CStatic m_ST_THR29;
+	CStatic m_ST_THR30;
+	CStatic m_ST_THR31;
+	CStatic m_ST_THR32;
+	// スレッド表示列数の選択リスト
+	CComboBox m_CMB_THRDW;
+	// 表示列数
+	CStatic m_ST_COL;
+	afx_msg void OnSelchangeCmbThrdw();
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

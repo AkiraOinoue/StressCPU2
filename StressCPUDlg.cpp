@@ -73,7 +73,7 @@ CStressCPUDlg::CStressCPUDlg(CWnd* pParent /*=nullptr*/)
 		);
 		this->m_MaxThrdCount = D_MAX_THRD_CNT;
 	}
-	// 全スレッド分の乱数・プログレスバー更新スレッド起動
+	// 最大対象スレッド数設定
 	this->SetMaxThrdCount(this->m_MaxThrdCount);
 	// 乱数表示用スレッド実行フラグ
 	this->SetExecAllFlag(TRUE);
@@ -109,6 +109,7 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BU_ALL_EXEC, m_BU_ALL_Exec);
 	DDX_Control(pDX, IDC_BU_ALL_SLEEP, m_BU_AllSleep);
 	DDX_Control(pDX, IDC_BU_ALL_WAKE, m_BU_AllWake);
+	//
 	DDX_Control(pDX, IDC_ST_GUID01, m_ST_Guid01);
 	DDX_Control(pDX, IDC_ST_GUID02, m_ST_Guid02);
 	DDX_Control(pDX, IDC_ST_GUID03, m_ST_Guid03);
@@ -125,6 +126,23 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ST_GUID14, m_ST_Guid14);
 	DDX_Control(pDX, IDC_ST_GUID15, m_ST_Guid15);
 	DDX_Control(pDX, IDC_ST_GUID16, m_ST_Guid16);
+	DDX_Control(pDX, IDC_ST_GUID17, m_ST_Guid17);
+	DDX_Control(pDX, IDC_ST_GUID18, m_ST_Guid18);
+	DDX_Control(pDX, IDC_ST_GUID19, m_ST_Guid19);
+	DDX_Control(pDX, IDC_ST_GUID20, m_ST_Guid20);
+	DDX_Control(pDX, IDC_ST_GUID21, m_ST_Guid21);
+	DDX_Control(pDX, IDC_ST_GUID22, m_ST_Guid22);
+	DDX_Control(pDX, IDC_ST_GUID23, m_ST_Guid23);
+	DDX_Control(pDX, IDC_ST_GUID24, m_ST_Guid24);
+	DDX_Control(pDX, IDC_ST_GUID25, m_ST_Guid25);
+	DDX_Control(pDX, IDC_ST_GUID26, m_ST_Guid26);
+	DDX_Control(pDX, IDC_ST_GUID27, m_ST_Guid27);
+	DDX_Control(pDX, IDC_ST_GUID28, m_ST_Guid28);
+	DDX_Control(pDX, IDC_ST_GUID29, m_ST_Guid29);
+	DDX_Control(pDX, IDC_ST_GUID30, m_ST_Guid30);
+	DDX_Control(pDX, IDC_ST_GUID31, m_ST_Guid31);
+	DDX_Control(pDX, IDC_ST_GUID32, m_ST_Guid32);
+	//
 	DDX_Control(pDX, IDC_CH_IDLE01, m_CH_Idle01);
 	DDX_Control(pDX, IDC_CH_IDLE02, m_CH_Idle02);
 	DDX_Control(pDX, IDC_CH_IDLE03, m_CH_Idle03);
@@ -141,6 +159,23 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CH_IDLE14, m_CH_Idle14);
 	DDX_Control(pDX, IDC_CH_IDLE15, m_CH_Idle15);
 	DDX_Control(pDX, IDC_CH_IDLE16, m_CH_Idle16);
+	DDX_Control(pDX, IDC_CH_IDLE17, m_CH_Idle17);
+	DDX_Control(pDX, IDC_CH_IDLE18, m_CH_Idle18);
+	DDX_Control(pDX, IDC_CH_IDLE19, m_CH_Idle19);
+	DDX_Control(pDX, IDC_CH_IDLE20, m_CH_Idle20);
+	DDX_Control(pDX, IDC_CH_IDLE21, m_CH_Idle21);
+	DDX_Control(pDX, IDC_CH_IDLE22, m_CH_Idle22);
+	DDX_Control(pDX, IDC_CH_IDLE23, m_CH_Idle23);
+	DDX_Control(pDX, IDC_CH_IDLE24, m_CH_Idle24);
+	DDX_Control(pDX, IDC_CH_IDLE25, m_CH_Idle25);
+	DDX_Control(pDX, IDC_CH_IDLE26, m_CH_Idle26);
+	DDX_Control(pDX, IDC_CH_IDLE27, m_CH_Idle27);
+	DDX_Control(pDX, IDC_CH_IDLE28, m_CH_Idle28);
+	DDX_Control(pDX, IDC_CH_IDLE29, m_CH_Idle29);
+	DDX_Control(pDX, IDC_CH_IDLE30, m_CH_Idle30);
+	DDX_Control(pDX, IDC_CH_IDLE31, m_CH_Idle31);
+	DDX_Control(pDX, IDC_CH_IDLE32, m_CH_Idle32);
+	//
 	DDX_Control(pDX, IDC_BU_XOR, m_BU_XorThrd);
 	DDX_Control(pDX, IDC_ST_CPUCNT, m_ST_CpuCnt);
 	DDX_Control(pDX, IDC_ST_CPU_BRAND, m_ST_CpuBrand);
@@ -153,6 +188,7 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ST_FLOPS_MIN, m_ST_FlopsMIN);
 	DDX_Control(pDX, IDC_ST_FPUNIT_MAX, m_ST_FPUNIT_MAX);
 	DDX_Control(pDX, IDC_ST_FPUNIT_MIN, m_ST_FPUNIT_MIN);
+	//
 	DDX_Control(pDX, IDC_PROGRESS1, Prgb01);
 	DDX_Control(pDX, IDC_PROGRESS2, Prgb02);
 	DDX_Control(pDX, IDC_PROGRESS3, Prgb03);
@@ -169,6 +205,23 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PROGRESS14, Prgb14);
 	DDX_Control(pDX, IDC_PROGRESS15, Prgb15);
 	DDX_Control(pDX, IDC_PROGRESS16, Prgb16);
+	DDX_Control(pDX, IDC_PROGRESS17, Prgb17);
+	DDX_Control(pDX, IDC_PROGRESS18, Prgb18);
+	DDX_Control(pDX, IDC_PROGRESS19, Prgb19);
+	DDX_Control(pDX, IDC_PROGRESS20, Prgb20);
+	DDX_Control(pDX, IDC_PROGRESS21, Prgb21);
+	DDX_Control(pDX, IDC_PROGRESS22, Prgb22);
+	DDX_Control(pDX, IDC_PROGRESS23, Prgb23);
+	DDX_Control(pDX, IDC_PROGRESS24, Prgb24);
+	DDX_Control(pDX, IDC_PROGRESS25, Prgb25);
+	DDX_Control(pDX, IDC_PROGRESS26, Prgb26);
+	DDX_Control(pDX, IDC_PROGRESS27, Prgb27);
+	DDX_Control(pDX, IDC_PROGRESS28, Prgb28);
+	DDX_Control(pDX, IDC_PROGRESS29, Prgb29);
+	DDX_Control(pDX, IDC_PROGRESS30, Prgb30);
+	DDX_Control(pDX, IDC_PROGRESS31, Prgb31);
+	DDX_Control(pDX, IDC_PROGRESS32, Prgb32);
+	//
 	DDX_Control(pDX, IDC_CHK_PRGBAR, chk_PrgBar);
 	DDX_Control(pDX, IDC_CHK_RNDVAL, chk_RndVal);
 	DDX_Control(pDX, IDC_CPU_IMG, m_CPU_IMG);
@@ -180,6 +233,41 @@ void CStressCPUDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHK_FLOPSMAX, m_Chk_FlopsMAX);
 	DDX_Control(pDX, IDC_EDT_FLOPSMAX, m_EDT_FlopsMAX);
 	DDX_Control(pDX, IDC_ST_MAX_VALUE, m_ST_MaxValue);
+	//
+	DDX_Control(pDX, IDC_ST_THREAD01, m_ST_THR01);
+	DDX_Control(pDX, IDC_ST_THREAD02, m_ST_THR02);
+	DDX_Control(pDX, IDC_ST_THREAD03, m_ST_THR03);
+	DDX_Control(pDX, IDC_ST_THREAD04, m_ST_THR04);
+	DDX_Control(pDX, IDC_ST_THREAD05, m_ST_THR05);
+	DDX_Control(pDX, IDC_ST_THREAD06, m_ST_THR06);
+	DDX_Control(pDX, IDC_ST_THREAD07, m_ST_THR07);
+	DDX_Control(pDX, IDC_ST_THREAD08, m_ST_THR08);
+	DDX_Control(pDX, IDC_ST_THREAD09, m_ST_THR09);
+	DDX_Control(pDX, IDC_ST_THREAD10, m_ST_THR10);
+	DDX_Control(pDX, IDC_ST_THREAD11, m_ST_THR11);
+	DDX_Control(pDX, IDC_ST_THREAD12, m_ST_THR12);
+	DDX_Control(pDX, IDC_ST_THREAD13, m_ST_THR13);
+	DDX_Control(pDX, IDC_ST_THREAD14, m_ST_THR14);
+	DDX_Control(pDX, IDC_ST_THREAD15, m_ST_THR15);
+	DDX_Control(pDX, IDC_ST_THREAD16, m_ST_THR16);
+	DDX_Control(pDX, IDC_ST_THREAD17, m_ST_THR17);
+	DDX_Control(pDX, IDC_ST_THREAD18, m_ST_THR18);
+	DDX_Control(pDX, IDC_ST_THREAD19, m_ST_THR19);
+	DDX_Control(pDX, IDC_ST_THREAD20, m_ST_THR20);
+	DDX_Control(pDX, IDC_ST_THREAD21, m_ST_THR21);
+	DDX_Control(pDX, IDC_ST_THREAD22, m_ST_THR22);
+	DDX_Control(pDX, IDC_ST_THREAD23, m_ST_THR23);
+	DDX_Control(pDX, IDC_ST_THREAD24, m_ST_THR24);
+	DDX_Control(pDX, IDC_ST_THREAD25, m_ST_THR25);
+	DDX_Control(pDX, IDC_ST_THREAD26, m_ST_THR26);
+	DDX_Control(pDX, IDC_ST_THREAD27, m_ST_THR27);
+	DDX_Control(pDX, IDC_ST_THREAD28, m_ST_THR28);
+	DDX_Control(pDX, IDC_ST_THREAD29, m_ST_THR29);
+	DDX_Control(pDX, IDC_ST_THREAD30, m_ST_THR30);
+	DDX_Control(pDX, IDC_ST_THREAD31, m_ST_THR31);
+	DDX_Control(pDX, IDC_ST_THREAD32, m_ST_THR32);
+	DDX_Control(pDX, IDC_CMB_THRDW, m_CMB_THRDW);
+	DDX_Control(pDX, IDC_ST_COL, m_ST_COL);
 }
 
 BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
@@ -203,6 +291,22 @@ BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CH_IDLE14, &CStressCPUDlg::OnClickedChIdle14)
 	ON_BN_CLICKED(IDC_CH_IDLE15, &CStressCPUDlg::OnClickedChIdle15)
 	ON_BN_CLICKED(IDC_CH_IDLE16, &CStressCPUDlg::OnClickedChIdle16)
+	ON_BN_CLICKED(IDC_CH_IDLE17, &CStressCPUDlg::OnClickedChIdle17)
+	ON_BN_CLICKED(IDC_CH_IDLE18, &CStressCPUDlg::OnClickedChIdle18)
+	ON_BN_CLICKED(IDC_CH_IDLE19, &CStressCPUDlg::OnClickedChIdle19)
+	ON_BN_CLICKED(IDC_CH_IDLE20, &CStressCPUDlg::OnClickedChIdle20)
+	ON_BN_CLICKED(IDC_CH_IDLE21, &CStressCPUDlg::OnClickedChIdle21)
+	ON_BN_CLICKED(IDC_CH_IDLE22, &CStressCPUDlg::OnClickedChIdle22)
+	ON_BN_CLICKED(IDC_CH_IDLE23, &CStressCPUDlg::OnClickedChIdle23)
+	ON_BN_CLICKED(IDC_CH_IDLE24, &CStressCPUDlg::OnClickedChIdle24)
+	ON_BN_CLICKED(IDC_CH_IDLE25, &CStressCPUDlg::OnClickedChIdle25)
+	ON_BN_CLICKED(IDC_CH_IDLE26, &CStressCPUDlg::OnClickedChIdle26)
+	ON_BN_CLICKED(IDC_CH_IDLE27, &CStressCPUDlg::OnClickedChIdle27)
+	ON_BN_CLICKED(IDC_CH_IDLE28, &CStressCPUDlg::OnClickedChIdle28)
+	ON_BN_CLICKED(IDC_CH_IDLE29, &CStressCPUDlg::OnClickedChIdle29)
+	ON_BN_CLICKED(IDC_CH_IDLE30, &CStressCPUDlg::OnClickedChIdle30)
+	ON_BN_CLICKED(IDC_CH_IDLE31, &CStressCPUDlg::OnClickedChIdle31)
+	ON_BN_CLICKED(IDC_CH_IDLE32, &CStressCPUDlg::OnClickedChIdle32)
 	ON_BN_CLICKED(IDC_BU_ALL_WAKE, &CStressCPUDlg::OnClickedBuAllWake)
 	ON_BN_CLICKED(IDC_BU_XOR, &CStressCPUDlg::OnClickedBuXorThread)
 	ON_BN_CLICKED(IDCANCEL, &CStressCPUDlg::OnBnClickedEnding)
@@ -214,10 +318,11 @@ BEGIN_MESSAGE_MAP(CStressCPUDlg, CDialogEx)
 	ON_BN_CLICKED(ID_RESET, &CStressCPUDlg::OnClickedBuReset)
 	ON_EN_CHANGE(IDC_EDT_FLOPSMAX, &CStressCPUDlg::OnChangeEdtFlopsmax)
 	ON_BN_CLICKED(IDC_CHK_FLOPSMAX, &CStressCPUDlg::OnClickedChkFlopsmax)
+	ON_CBN_SELCHANGE(IDC_CMB_THRDW, &CStressCPUDlg::OnSelchangeCmbThrdw)
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 // CStressCPUDlg メッセージ ハンドラー
-
 BOOL CStressCPUDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -225,24 +330,13 @@ BOOL CStressCPUDlg::OnInitDialog()
 	//  Framework は、この設定を自動的に行います。
 	SetIcon(m_hIcon, TRUE);			// 大きいアイコンの設定
 	SetIcon(m_hIcon, FALSE);		// 小さいアイコンの設定
-
-	// スレッド乱数表示欄のコントロールをベクター登録
-	this->m_StVector.push_back(&this->m_ST_Guid01);
-	this->m_StVector.push_back(&this->m_ST_Guid02);
-	this->m_StVector.push_back(&this->m_ST_Guid03);
-	this->m_StVector.push_back(&this->m_ST_Guid04);
-	this->m_StVector.push_back(&this->m_ST_Guid05);
-	this->m_StVector.push_back(&this->m_ST_Guid06);
-	this->m_StVector.push_back(&this->m_ST_Guid07);
-	this->m_StVector.push_back(&this->m_ST_Guid08);
-	this->m_StVector.push_back(&this->m_ST_Guid09);
-	this->m_StVector.push_back(&this->m_ST_Guid10);
-	this->m_StVector.push_back(&this->m_ST_Guid11);
-	this->m_StVector.push_back(&this->m_ST_Guid12);
-	this->m_StVector.push_back(&this->m_ST_Guid13);
-	this->m_StVector.push_back(&this->m_ST_Guid14);
-	this->m_StVector.push_back(&this->m_ST_Guid15);
-	this->m_StVector.push_back(&this->m_ST_Guid16);
+	/// デバッグ
+	// コントロールのベクターテーブル初期化
+	this->VectorTableInit();
+	// ダイアログ初期サイズ設定
+	this->SetDialogSize(0);
+	// スレッド表示列数選択リストを有効化
+	this->m_CMB_THRDW.EnableWindow(TRUE);
 	// FLOPS値リアル値のプログレスバー
 	this->Flops_RealBar = new PrgbCtrl(&this->m_FLPSPRG01);
 	// FLOPS値MAX値のプログレスバー
@@ -251,30 +345,18 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->Flops_MINBar = new PrgbCtrl(&this->m_FLPSPRG03);
 	// MAX値FLOPSプログレスバーレンジ設定
 	this->Flops_MAXBar->SetFlopsRange(100);
-	// プログレスバーコントロールベクターの配列を生成
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb01));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb02));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb03));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb04));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb05));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb06));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb07));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb08));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb09));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb10));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb11));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb12));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb13));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb14));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb15));
-	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb16));
 	// プログレスバー更新チェックボックスON
 	this->chk_PrgBar.SetCheck(TRUE);
 	// スレッド毎の乱数表示チェックボックスON
 	this->chk_RndVal.SetCheck(TRUE);
+// 最大スレッドのテスト
+#ifdef DEBUG
+	this->m_MaxThrdCount = 32;
+#endif // DEBUG
+
 	// ストレス対象数選択リスト初期化
 	int ii = 1;
-	for (const auto& stvec : this->m_StVector)
+	for (const auto& stvec : this->m_StThrdRnd)
 	{
 		if (ii > this->m_MaxThrdCount)
 		{
@@ -286,6 +368,13 @@ BOOL CStressCPUDlg::OnInitDialog()
 		ii++;
 	}
 	this->m_COM_Thread.SetCurSel(this->m_MaxThrdCount - 1);
+	// スレッド表示列数選択リスト作成
+	int minitmpii = this->MakeThrdCMBList(this->m_MaxThrdCount);
+	// スレッドコントロール表示列数の初期選択位置
+	this->m_CMB_THRDW.SetCurSel(0);
+	// スレッド表示列数初期値
+	this->SetThrdDispCol(minitmpii);
+	// ストレス演算値設定
 	MT::SetStressCtrl(D_INNER);
 	// 一括待機を無効
 	this->m_BU_AllSleep.EnableWindow(FALSE);
@@ -297,23 +386,6 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->m_BU_ALL_Exec.EnableWindow(TRUE);
 	// リセットボタンを非活性
 	this->m_Btn_Reset.EnableWindow(FALSE);
-	// 待機ボタンコントロールをベクター初期化
-	this->m_CH_Idles.push_back(&this->m_CH_Idle01);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle02);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle03);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle04);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle05);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle06);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle07);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle08);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle09);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle10);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle11);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle12);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle13);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle14);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle15);
-	this->m_CH_Idles.push_back(&this->m_CH_Idle16);
 	// CPUIDベンダー表示
 	this->cpu_vender = this->m_cpuinfo.GetVendor().c_str();
 	this->m_ST_CpuVen.SetWindowTextA(this->cpu_vender.c_str());
@@ -335,7 +407,7 @@ BOOL CStressCPUDlg::OnInitDialog()
 	// FLOPS値MAXの初期値
 	this->m_EDT_FlopsMAX.SetWindowTextA("500");
 	// スレッド乱数表示初期化
-	for (auto var : this->m_StVector)
+	for (auto var : this->m_StThrdRnd)
 	{
 		var->SetWindowTextA(this->cpu_vender.c_str());
 	}
@@ -368,6 +440,36 @@ BOOL CStressCPUDlg::OnInitDialog()
 	return TRUE;  // フォーカスをコントロールに設定した場合を除き、TRUE を返します。
 }
 /// <summary>
+/// スレッド表示列数選択リスト作成
+/// </summary>
+/// <param name="var">最大スレッド数</param>
+/// <returns>最小列数</returns>
+int CStressCPUDlg::MakeThrdCMBList(int var)
+{
+	// スレッドコントロール配列の縦の最大が４
+	// これを超えないように列数の最小値を決める
+	int minitmpii = var / 4;
+	// 割り切れずに余った場合は＋１する
+	if (var % 4)
+	{
+		minitmpii++;
+	}
+	if (minitmpii < 1)
+	{
+		minitmpii = 1;
+	}
+	int maxtmpii = (var > 7 ? 8 : var);
+	// コンボボックスから全ての項目を削除する
+	this->m_CMB_THRDW.ResetContent();
+	for (int ii = minitmpii; ii <= maxtmpii; ii++)
+	{
+		CString var;
+		var.Format("%d", ii);
+		this->m_CMB_THRDW.AddString(var.GetString());
+	}
+	return minitmpii;
+}
+/// <summary>
 /// 各コントロールのツールチップを設定
 /// </summary>
 /// <param name=""></param>
@@ -384,6 +486,8 @@ void CStressCPUDlg::SetCtrlToolTips(void)
 	this->SetAddToolTips(&this->m_COM_Thread, "負荷を掛ける最大スレッド数を選択して下さい。");
 	// スレッド準備ボタン
 	this->SetAddToolTips(&this->m_BU_ALL_Exec, "このボタンでスレッド起動の準備をします。");
+	// スレッドコントロール表示列数選択
+	this->SetAddToolTips(&this->m_CMB_THRDW, "このリストでスレッドコントロールの表示列数の選択をします。");
 	// 全実行
 	this->SetAddToolTips(&this->m_BU_AllWake, "全てのスレッドに負荷を掛けます。");
 	// 全休止
@@ -506,6 +610,11 @@ void CStressCPUDlg::OnClickedBuAllExec()
 	this->SetBU_XorThrd(TRUE);
 	// 一括実行フラグON
 	this->SetExecAllFlag(TRUE);
+	// スレッド部品表示
+	int width = this->GetThrdDispCol();
+	this->SetLayOut(width, max_count);
+	// スレッド表示列数選択リストを無効化
+	this->m_CMB_THRDW.EnableWindow(FALSE);
 	// CPU画像表示
 	this->setPictureControl(this->m_cpuinfo);
 }
@@ -655,7 +764,7 @@ void CStressCPUDlg::SetStVector(int idx, const char* strRnd)
 {
 	// 参照する前にロックを取得する
 	std::lock_guard<std::mutex> lock(SCPU::g_mtx_[idx]);
-	this->m_StVector[idx]->SetWindowTextA(strRnd);
+	this->m_StThrdRnd[idx]->SetWindowTextA(strRnd);
 }
 // 最大対象スレッド数取得
 int CStressCPUDlg::GetMaxThrdCount()
@@ -673,6 +782,23 @@ void CStressCPUDlg::SetMaxThrdCount(int thrdCnt)
 	// 参照する前にロックを取得する
 	std::lock_guard<std::mutex> lock(SCPU::mtx_scpu_MaxThrdCount);
 	this->m_MaxThrdCount = thrdCnt;
+}
+/// <summary>
+/// スレッド表示列数設定
+/// </summary>
+/// <param name="thrdCol">表示列数</param>
+void CStressCPUDlg::SetThrdDispCol(int thrdCol)
+{
+	this->m_ThrdDispCol = thrdCol;
+}
+/// <summary>
+/// スレッド表示列数取得
+/// </summary>
+/// <param name="">なし</param>
+/// <returns></returns>
+int CStressCPUDlg::GetThrdDispCol(void)
+{
+	return this->m_ThrdDispCol;
 }
 /// <summary>
 /// SwitchThread
@@ -815,6 +941,103 @@ void CStressCPUDlg::OnClickedChIdle16()
 	int st = 15;
 	SwitchThread(st);
 }
+
+// スレッド毎の実行ボタン 17
+void CStressCPUDlg::OnClickedChIdle17()
+{
+	int st = 16;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 18
+void CStressCPUDlg::OnClickedChIdle18()
+{
+	int st = 17;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 19
+void CStressCPUDlg::OnClickedChIdle19()
+{
+	int st = 18;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 20
+void CStressCPUDlg::OnClickedChIdle20()
+{
+	int st = 19;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 21
+void CStressCPUDlg::OnClickedChIdle21()
+{
+	int st = 20;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 22
+void CStressCPUDlg::OnClickedChIdle22()
+{
+	int st = 21;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 23
+void CStressCPUDlg::OnClickedChIdle23()
+{
+	int st = 22;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 24
+void CStressCPUDlg::OnClickedChIdle24()
+{
+	int st = 23;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 25
+void CStressCPUDlg::OnClickedChIdle25()
+{
+	int st = 24;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 26
+void CStressCPUDlg::OnClickedChIdle26()
+{
+	int st = 25;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 27
+void CStressCPUDlg::OnClickedChIdle27()
+{
+	int st = 26;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 28
+void CStressCPUDlg::OnClickedChIdle28()
+{
+	int st = 27;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 29
+void CStressCPUDlg::OnClickedChIdle29()
+{
+	int st = 28;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 30
+void CStressCPUDlg::OnClickedChIdle30()
+{
+	int st = 29;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 31
+void CStressCPUDlg::OnClickedChIdle31()
+{
+	int st = 30;
+	SwitchThread(st);
+}
+// スレッド毎の実行ボタン 32
+void CStressCPUDlg::OnClickedChIdle32()
+{
+	int st = 31;
+	SwitchThread(st);
+}
 #pragma endregion
 // 一括実行フラグ取得
 BOOL CStressCPUDlg::GetExecAllFlag()
@@ -867,10 +1090,14 @@ void CStressCPUDlg::OnSelchangeComThread()
 {
 	// 選択された値を取得
 	auto selvar = this->m_COM_Thread.GetCurSel() + 1;
-	//
-	//this->WaitActiveCtrl(&this->m_COM_Thread);
 	// 最大対象スレッド数設定
 	this->SetMaxThrdCount(selvar);
+	// スレッド表示列数選択リスト更新
+	int minithrd = this->MakeThrdCMBList(selvar);
+	// スレッド表示列数選択位置初期化
+	this->m_CMB_THRDW.SetCurSel(0);
+	// スレッド表示列数初期値設定
+	this->SetThrdDispCol(minithrd);
 }
 // バージョン情報表示
 void CStressCPUDlg::OnClickedBuVersion()
@@ -1129,6 +1356,8 @@ void CStressCPUDlg::setPictureControl(CPUID& cpuid)
 // 全てのスレッドを停止、MAXスレッドを再選択可能
 void CStressCPUDlg::OnClickedBuReset()
 {
+	// スレッド表示列数選択リストを有効化
+	this->m_CMB_THRDW.EnableWindow(TRUE);
 	// 全てのスレッドを休止・無効
 	this->SetThrdCheckCtrl(
 		MT::e_Status::st_sleep,
@@ -1155,6 +1384,8 @@ void CStressCPUDlg::OnClickedBuReset()
 	this->SetInitExec(false);
 	// リセットボタンを非活性
 	this->m_Btn_Reset.EnableWindow(FALSE);
+	// 部品の初期化
+	this->SetCtrlInit();
 }
 /// <summary>
 /// スレッド稼働フラグ設定
@@ -1218,7 +1449,7 @@ void CStressCPUDlg::SetThrdCheckCtrl(
 /// <param name="">なし</param>
 void CStressCPUDlg::SetRndInitial(void)
 {
-	for (const auto& var : this->m_StVector)
+	for (const auto& var : this->m_StThrdRnd)
 	{
 		var->SetWindowTextA(this->cpu_vender.c_str());
 	}
@@ -1295,7 +1526,7 @@ void CStressCPUDlg::OnChangeEdtFlopsmax()
 	// TODO: ここにコントロール通知ハンドラー コードを追加してください。
 	CString var;
 	this->m_EDT_FlopsMAX.GetWindowTextA(var);
-	auto val = std::atoi(var.GetString());
+	auto val = std::stoi(var.GetString());
 	if (val < 100 || 10000 < val)
 	{
 		// チェックボックスを無効にします。
@@ -1363,4 +1594,420 @@ BOOL CStressCPUDlg::GetChkFlopsMAXLimited(void)
 	// 参照する前にロックを取得する
 	std::lock_guard<std::mutex> lock(SCPU::mtx_ChkFlopsMaxLimited);
 	return this->m_Chk_FlopsMAX.GetCheck();
+}
+/// <summary>
+/// コントロールのベクターテーブル初期化
+/// </summary>
+/// <param name=""></param>
+void CStressCPUDlg::VectorTableInit(void)
+{
+	// ダイアログサイズのテーブル
+	this->m_DialogSize = {
+		{0, {0,0,D_DLG_WIDTH,D_DLG_HEIGHT}},
+		{1, {0,0,D_DLG_WIDTH+D_PLUS_WIDTH,D_DLG_HEIGHT}}
+	};
+	// スレッドID表示欄のコントロールをベクター登録
+	this->m_StThredID.push_back(&this->m_ST_THR01);
+	this->m_StThredID.push_back(&this->m_ST_THR02);
+	this->m_StThredID.push_back(&this->m_ST_THR03);
+	this->m_StThredID.push_back(&this->m_ST_THR04);
+	this->m_StThredID.push_back(&this->m_ST_THR05);
+	this->m_StThredID.push_back(&this->m_ST_THR06);
+	this->m_StThredID.push_back(&this->m_ST_THR07);
+	this->m_StThredID.push_back(&this->m_ST_THR08);
+	this->m_StThredID.push_back(&this->m_ST_THR09);
+	this->m_StThredID.push_back(&this->m_ST_THR10);
+	this->m_StThredID.push_back(&this->m_ST_THR11);
+	this->m_StThredID.push_back(&this->m_ST_THR12);
+	this->m_StThredID.push_back(&this->m_ST_THR13);
+	this->m_StThredID.push_back(&this->m_ST_THR14);
+	this->m_StThredID.push_back(&this->m_ST_THR15);
+	this->m_StThredID.push_back(&this->m_ST_THR16);
+	this->m_StThredID.push_back(&this->m_ST_THR17);
+	this->m_StThredID.push_back(&this->m_ST_THR18);
+	this->m_StThredID.push_back(&this->m_ST_THR19);
+	this->m_StThredID.push_back(&this->m_ST_THR20);
+	this->m_StThredID.push_back(&this->m_ST_THR21);
+	this->m_StThredID.push_back(&this->m_ST_THR22);
+	this->m_StThredID.push_back(&this->m_ST_THR23);
+	this->m_StThredID.push_back(&this->m_ST_THR24);
+	this->m_StThredID.push_back(&this->m_ST_THR25);
+	this->m_StThredID.push_back(&this->m_ST_THR26);
+	this->m_StThredID.push_back(&this->m_ST_THR27);
+	this->m_StThredID.push_back(&this->m_ST_THR28);
+	this->m_StThredID.push_back(&this->m_ST_THR29);
+	this->m_StThredID.push_back(&this->m_ST_THR30);
+	this->m_StThredID.push_back(&this->m_ST_THR31);
+	this->m_StThredID.push_back(&this->m_ST_THR32);
+	// プログレスバーコントロールベクターの配列を生成
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb01));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb02));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb03));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb04));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb05));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb06));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb07));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb08));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb09));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb10));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb11));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb12));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb13));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb14));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb15));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb16));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb17));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb18));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb19));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb20));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb21));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb22));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb23));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb24));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb25));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb26));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb27));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb28));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb29));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb30));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb31));
+	this->PrgBarCtl.push_back(PrgbCtrl(&this->Prgb32));
+	// スレッド乱数表示欄のコントロールをベクター登録
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid01);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid02);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid03);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid04);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid05);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid06);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid07);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid08);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid09);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid10);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid11);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid12);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid13);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid14);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid15);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid16);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid17);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid18);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid19);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid20);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid21);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid22);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid23);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid24);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid25);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid26);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid27);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid28);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid29);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid30);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid31);
+	this->m_StThrdRnd.push_back(&this->m_ST_Guid32);
+	// スレッド実行待機ボタンコントロールをベクター初期化
+	this->m_CH_Idles.push_back(&this->m_CH_Idle01);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle02);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle03);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle04);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle05);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle06);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle07);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle08);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle09);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle10);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle11);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle12);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle13);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle14);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle15);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle16);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle17);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle18);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle19);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle20);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle21);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle22);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle23);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle24);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle25);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle26);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle27);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle28);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle29);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle30);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle31);
+	this->m_CH_Idles.push_back(&this->m_CH_Idle32);
+	// 基準コントロールの座標取得
+	RECT brect;
+	POINT bpoint;
+	//画面上の座標を取得（表示列数）
+	this->m_ST_COL.GetWindowRect(&brect);
+	bpoint.x = brect.left;
+	bpoint.y = brect.top;
+	// クライアントの座標に変換
+	this->ScreenToClient(&bpoint);
+
+	// スレッドID表示サイズ
+	// left, top, right, bottom
+	RECT rect;
+	this->m_StThredID[0]->GetClientRect(&rect);
+	this->r_StThredID =
+	{
+		bpoint.x, 183,//123,
+		rect.right,rect.bottom
+	};
+	// プログレスバーサイズ
+	// left, top, right, bottom
+	this->PrgBarCtl[0].PrgbObj->GetClientRect(&rect);
+	this->r_PrgBarCtl =
+	{
+		bpoint.x, this->r_StThredID.top+this->r_StThredID.bottom,
+		rect.right,rect.bottom
+	};
+	// スレッド乱数サイズ
+	// left, top, right, bottom
+	this->m_StThrdRnd[0]->GetClientRect(&rect);
+	this->r_StThrdRnd =
+	{
+		bpoint.x, this->r_PrgBarCtl.top + this->r_PrgBarCtl.bottom,
+		rect.right,rect.bottom
+	};
+	// スレッド実行待機ボタンサイズ
+	// left, top, right, bottom
+	this->m_CH_Idles[0]->GetClientRect(&rect);
+	this->r_CH_Idles =
+	{
+		bpoint.x, this->r_StThrdRnd.top + this->r_StThrdRnd.bottom,
+		rect.right,rect.bottom
+	};
+	// 部品の初期化
+	this->SetCtrlInit();
+}
+/// <summary>
+/// ダイアログサイズを設定
+/// </summary>
+/// <param name="idx">0=標準、1=横長</param>
+void CStressCPUDlg::SetDialogSize(int idx)
+{
+	this->SetWindowPos(
+		0,
+		this->m_DialogSize[idx].left,
+		this->m_DialogSize[idx].top,
+		this->m_DialogSize[idx].right,
+		this->m_DialogSize[idx].bottom,
+		SWP_NOREPOSITION
+	);
+	// 画面中央に表示
+	this->CenterWindow(this->GetDesktopWindow());
+}
+/// <summary>
+/// 部品のレイアウト
+/// </summary>
+/// <param name="var">列数</param>
+/// <param name="cnt">スレッド数</param>
+void CStressCPUDlg::SetLayOut(
+	const int var,
+	const int cnt
+)
+{
+	// ダイアログサイズ設定
+	if (var <= 4)
+	{
+		this->SetDialogSize(0);
+	}
+	else
+	{
+		this->SetDialogSize(1);
+	}
+	// スレッドID部品の初期テーブル
+	std::vector<RECT> r_STID;
+	r_STID.assign(cnt, this->r_StThredID);
+	// プログレスバー部品の初期テーブル
+	std::vector<RECT> r_PrgB;
+	r_PrgB.assign(cnt, this->r_PrgBarCtl);
+	// スレッド乱数部品の初期テーブル
+	std::vector<RECT> r_ThrdRnd;
+	r_ThrdRnd.assign(cnt, this->r_StThrdRnd);
+	// スレッド実行待機部品の初期テーブル
+	std::vector<RECT> r_ThrChk;
+	r_ThrChk.assign(cnt, this->r_CH_Idles);
+	// 各部品の配置テーブル作成
+	// スレッドID部品の初期テーブル
+	this->MakeCordinateCtrl(
+		r_STID,
+		this->r_StThredID,
+		var
+	);
+	// プログレスバー部品の初期テーブル
+	this->MakeCordinateCtrl(
+		r_PrgB,
+		this->r_PrgBarCtl,
+		var
+	);
+	// スレッド乱数部品の初期テーブル
+	this->MakeCordinateCtrl(
+		r_ThrdRnd,
+		this->r_StThrdRnd,
+		var
+	);
+	// スレッド実行待機部品の初期テーブル
+	this->MakeCordinateCtrl(
+		r_ThrChk,
+		this->r_CH_Idles,
+		var
+	);
+	// 各部品の配置＆表示＆有効
+	// レイアウト
+	size_t ii = 0;
+	// 配置情報を適用
+	// スレッドID部品の移動
+	for (const auto& var : r_STID)
+	{
+		// 表示ON
+		this->m_StThredID[ii]->ShowWindow(SW_SHOW);
+		this->m_StThredID[ii]->EnableWindow(TRUE);
+		// 部品配置
+		this->m_StThredID[ii]->MoveWindow(
+			var.left,
+			var.top,
+			var.right,
+			var.bottom
+		);
+		ii++;
+	}
+	// プログレスバー部品の移動
+	ii = 0;
+	for (const auto& var : r_PrgB)
+	{
+		// 表示ON
+		this->PrgBarCtl[ii].PrgbObj->ShowWindow(SW_SHOW);
+		this->PrgBarCtl[ii].PrgbObj->EnableWindow(TRUE);
+		// 部品配置
+		this->PrgBarCtl[ii].PrgbObj->MoveWindow(
+			var.left,
+			var.top,
+			var.right,
+			var.bottom
+		);
+		ii++;
+	}
+	// スレッド乱数部品の移動
+	ii = 0;
+	for (const auto& var : r_ThrdRnd)
+	{
+		// 表示ON
+		this->m_StThrdRnd[ii]->ShowWindow(SW_SHOW);
+		this->m_StThrdRnd[ii]->EnableWindow(TRUE);
+		// 部品配置
+		this->m_StThrdRnd[ii]->MoveWindow(
+			var.left,
+			var.top,
+			var.right,
+			var.bottom
+		);
+		ii++;
+	}
+	// スレッド実行待機部品の移動
+	ii = 0;
+	for (const auto& var : r_ThrChk)
+	{
+		// 表示ON
+		this->m_CH_Idles[ii]->ShowWindow(SW_SHOW);
+		this->m_CH_Idles[ii]->EnableWindow(TRUE);
+		// 部品配置
+		this->m_CH_Idles[ii]->MoveWindow(
+			var.left,
+			var.top,
+			var.right,
+			var.bottom
+		);
+		ii++;
+	}
+}
+/// <summary>
+/// コントロール部品の配置テーブルを作成
+/// </summary>
+/// <param name="r_tbl">部品の配置ベクター</param>
+/// <param name="r_rect">初期座標</param>
+/// <param name="var">配置列宇数</param>
+void CStressCPUDlg::MakeCordinateCtrl(
+	std::vector<RECT>& r_tbl,
+	const RECT r_rect,
+	const int var
+)
+{
+	// 各部品の配置テーブル作成
+	const int plus_top = D_CTRL_PLUS_HEIGHT;
+	const int plus_left = D_CTRL_PLUS_WIDTH;
+	// 座標テーブルの初期化
+	RECT mrect = r_rect;
+	int ii = 0;
+	for (auto& obj : r_tbl)
+	{
+		// 改行処理
+		if (var > 0 && ii > 0 && (ii % var) == 0)
+		{
+			mrect.left = r_rect.left;
+			mrect.top += plus_top;
+		}
+		else if (ii > 0)
+		{
+			mrect.left += plus_left;
+		}
+		obj = mrect;
+		ii++;
+	}
+}
+/// <summary>
+/// 部品の初期化
+/// </summary>
+/// <param name=""></param>
+void CStressCPUDlg::SetCtrlInit(void)
+{
+	int sw_flg = SW_HIDE; //SW_HIDE=非表示, SW_SHOW=表示;
+	// スレッドID部品非表示
+	for (auto& var : this->m_StThredID)
+	{
+		var->EnableWindow(FALSE);
+		var->ShowWindow(sw_flg);
+	}
+	// プログレスバー部品非表示
+	for (auto& var : this->PrgBarCtl)
+	{
+		var.PrgbObj->EnableWindow(FALSE);
+		var.PrgbObj->ShowWindow(sw_flg);
+	}
+	// スレッド乱数部品非表示
+	for (auto& var : this->m_StThrdRnd)
+	{
+		var->EnableWindow(FALSE);
+		var->ShowWindow(sw_flg);
+	}
+	// スレッド実行待機部品非表示
+	for (auto& var : this->m_CH_Idles)
+	{
+		var->EnableWindow(FALSE);
+		var->ShowWindow(sw_flg);
+	}
+}
+// スレッドの表示列数を選択
+void CStressCPUDlg::OnSelchangeCmbThrdw()
+{
+	CString sval;
+	int ThrdCal = 0;
+	// 選択された値を取得
+	auto selvar = this->m_CMB_THRDW.GetCurSel();
+	this->m_CMB_THRDW.GetLBText(selvar, sval);
+	ThrdCal = std::stoi(sval.GetString());
+	// スレッド列数取得
+	this->SetThrdDispCol(ThrdCal);
+}
+
+// ダイアログのサイズ変更がある時に処理をする
+void CStressCPUDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+	// CPU画像表示
+	this->setPictureControl(this->m_cpuinfo);
 }

@@ -4,7 +4,7 @@
 #include <string>
 #define D_OUTER (100000)
 #define D_INNER (5042) // FLOPS値調整用の値
-#define D_MAX_THRD_CNT (16)
+#define D_MAX_THRD_CNT (32)
 namespace MT
 {
 	// 高負荷率可変設定
@@ -112,6 +112,8 @@ namespace MT
 		std::thread* GetThrdPointer(int thrdID);
 		// スレッドのハンドルを取得
 		std::thread::native_handle_type GetThrdNativeHnd(int thrdID);
+		// 乱数表示スレッドのハンドルを取得
+		std::thread::native_handle_type GetThrdRndDispHnd(int thrdID);
 		// マルチスレッドの乱数文字列を取得
 		std::string GetRndStr(int thrdID);
 		// マルチスレッドの乱数文字列を設定
