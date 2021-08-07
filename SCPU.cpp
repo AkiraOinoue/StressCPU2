@@ -266,6 +266,8 @@ namespace SCPU
 	void FlopsProgressBarUpdate(CStressCPUDlg* strc)
 	{
 		bool EndExecFlg = false;
+		double ST_MAX_FLOPS = 0.0;
+
 		// MAX値FLOPSバー更新ステップ
 		strc->Flops_MAXBar->SetStep(1);
 		for (;;)
@@ -292,7 +294,12 @@ namespace SCPU
 			}
 			else
 			{
-				RngMAX = MaxVar;
+				// 前回のMAX FLOPSよりも大きければ更新
+				if (ST_MAX_FLOPS < MaxVar)
+				{
+					ST_MAX_FLOPS = MaxVar;
+				}
+				RngMAX = ST_MAX_FLOPS;
 			}
 			// FLOPS値MAXを表示
 			CString svar;
@@ -325,6 +332,7 @@ namespace SCPU
 				strc->Flops_MAXBar->End();
 				// MIN値FLOPSプログレスバー更新
 				strc->Flops_MINBar->End();
+				ST_MAX_FLOPS = 0.0;
 				EndExecFlg = true;
 			}
 		}
