@@ -11,3 +11,6 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 操作は~doc/操作マニュアル.xlsxを参考にして下さい。</br>
 ## 動作設定
 本体プログラムと同一フォルダに"StressCPU2/res"フォルダをコピーして下さい。
+## 制限事項
+最大スレッド数は３２です。
+それ以上のCPUでも動作しますが最大スレッド数は３２として動作します。
