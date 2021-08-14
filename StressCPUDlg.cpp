@@ -374,6 +374,8 @@ BOOL CStressCPUDlg::OnInitDialog()
 	this->m_CMB_THRDW.SetCurSel(0);
 	// スレッド表示列数初期値
 	this->SetThrdDispCol(minitmpii);
+	// スレッドコントロール表示
+	this->SetLayOut(minitmpii, this->m_MaxThrdCount, FALSE);
 	// ストレス演算値設定
 	MT::SetStressCtrl(D_INNER);
 	// 一括待機を無効
@@ -458,7 +460,16 @@ int CStressCPUDlg::MakeThrdCMBList(int var)
 	{
 		minitmpii = 1;
 	}
+	// 縦より横が小さければ列を４にする。
+	if (minitmpii < 4)
+	{
+		minitmpii = 4;
+	}
 	int maxtmpii = (var > 7 ? 8 : var);
+	if (var < 4)
+	{
+		minitmpii = maxtmpii = var;
+	}
 	// コンボボックスから全ての項目を削除する
 	this->m_CMB_THRDW.ResetContent();
 	for (int ii = minitmpii; ii <= maxtmpii; ii++)
@@ -579,6 +590,8 @@ HCURSOR CStressCPUDlg::OnQueryDragIcon()
 // スレッド準備
 void CStressCPUDlg::OnClickedBuAllExec()
 {
+	// スレッド準備フラグ設定
+	this->SetThrdReadyFlg(true);
 	// リセットボタンを活性
 	this->m_Btn_Reset.EnableWindow(TRUE);
 	// プルダウンメニューで選択したスレッド数
@@ -610,11 +623,6 @@ void CStressCPUDlg::OnClickedBuAllExec()
 	this->SetBU_XorThrd(TRUE);
 	// 一括実行フラグON
 	this->SetExecAllFlag(TRUE);
-	// スレッド部品表示
-	int width = this->GetThrdDispCol();
-	this->SetLayOut(width, max_count);
-	// スレッド表示列数選択リストを無効化
-	this->m_CMB_THRDW.EnableWindow(FALSE);
 	// CPU画像表示
 	this->setPictureControl(this->m_cpuinfo);
 }
@@ -843,6 +851,17 @@ void CStressCPUDlg::SwitchThread(int tID)
 	}
 	// 一定時間クリックベントを無効にする
 	this->WaitActiveCtrl(this->m_CH_Idles[tID]);
+	// スレッドが１つでも動いていたら無効にする
+	if (this->hmultiThrd->GetUpdateCounter() > 0)
+	{
+		// スレッド部品列数選択リスト無効化
+		this->m_CMB_THRDW.EnableWindow(FALSE);
+	}
+	else
+	{
+		// スレッド部品列数選択リスト有効化
+		this->m_CMB_THRDW.EnableWindow(TRUE);
+	}
 }
 #pragma region スレッド毎の実行ボタン
 // スレッド毎の実行ボタン 01
@@ -1098,6 +1117,22 @@ void CStressCPUDlg::OnSelchangeComThread()
 	this->m_CMB_THRDW.SetCurSel(0);
 	// スレッド表示列数初期値設定
 	this->SetThrdDispCol(minithrd);
+	// スレッドコントロール初期化
+	// 非表示にする
+	this->SetCtrlInit();
+	// スレッドレイアウト表示
+	if (this->GetThrdReadyFlg() == true)
+	{
+		// スレッドコントロール有効
+		this->SetLayOut(minithrd, this->GetMaxThrdCount());
+	}
+	else
+	{
+		// スレッドコントロール無効
+		this->SetLayOut(minithrd, this->GetMaxThrdCount(), FALSE);
+	}
+	// CPU画像表示
+	this->setPictureControl(this->m_cpuinfo);
 }
 // バージョン情報表示
 void CStressCPUDlg::OnClickedBuVersion()
@@ -1356,6 +1391,8 @@ void CStressCPUDlg::setPictureControl(CPUID& cpuid)
 // 全てのスレッドを停止、MAXスレッドを再選択可能
 void CStressCPUDlg::OnClickedBuReset()
 {
+	// スレッド準備フラグOFF
+	this->SetThrdReadyFlg(false);
 	// スレッド表示列数選択リストを有効化
 	this->m_CMB_THRDW.EnableWindow(TRUE);
 	// 全てのスレッドを休止・無効
@@ -1384,8 +1421,6 @@ void CStressCPUDlg::OnClickedBuReset()
 	this->SetInitExec(false);
 	// リセットボタンを非活性
 	this->m_Btn_Reset.EnableWindow(FALSE);
-	// 部品の初期化
-	this->SetCtrlInit();
 }
 /// <summary>
 /// スレッド稼働フラグ設定
@@ -1602,9 +1637,16 @@ BOOL CStressCPUDlg::GetChkFlopsMAXLimited(void)
 void CStressCPUDlg::VectorTableInit(void)
 {
 	// ダイアログサイズのテーブル
+	int widthUnit = 85;
 	this->m_DialogSize = {
-		{0, {0,0,D_DLG_WIDTH,D_DLG_HEIGHT}},
-		{1, {0,0,D_DLG_WIDTH+D_PLUS_WIDTH,D_DLG_HEIGHT}}
+		{1, {0,0,D_DLG_WIDTH,D_DLG_HEIGHT}},
+		{2, {0,0,D_DLG_WIDTH,D_DLG_HEIGHT}},
+		{3, {0,0,D_DLG_WIDTH,D_DLG_HEIGHT}},
+		{4, {0,0,D_DLG_WIDTH,D_DLG_HEIGHT}},
+		{5, {0,0,D_DLG_WIDTH + widthUnit,D_DLG_HEIGHT}},
+		{6, {0,0,D_DLG_WIDTH + widthUnit*2,D_DLG_HEIGHT}},
+		{7, {0,0,D_DLG_WIDTH + widthUnit*3,D_DLG_HEIGHT}},
+		{8, {0,0,D_DLG_WIDTH+D_PLUS_WIDTH,D_DLG_HEIGHT}}
 	};
 	// スレッドID表示欄のコントロールをベクター登録
 	this->m_StThredID.push_back(&this->m_ST_THR01);
@@ -1806,20 +1848,15 @@ void CStressCPUDlg::SetDialogSize(int idx)
 /// </summary>
 /// <param name="var">列数</param>
 /// <param name="cnt">スレッド数</param>
+/// <param name="onflg">実行・待機切替ON/OFF</param>
 void CStressCPUDlg::SetLayOut(
 	const int var,
-	const int cnt
+	const int cnt,
+	BOOL  onflg
 )
 {
 	// ダイアログサイズ設定
-	if (var <= 4)
-	{
-		this->SetDialogSize(0);
-	}
-	else
-	{
-		this->SetDialogSize(1);
-	}
+	this->SetDialogSize(var);
 	// スレッドID部品の初期テーブル
 	std::vector<RECT> r_STID;
 	r_STID.assign(cnt, this->r_StThredID);
@@ -1914,7 +1951,7 @@ void CStressCPUDlg::SetLayOut(
 	{
 		// 表示ON
 		this->m_CH_Idles[ii]->ShowWindow(SW_SHOW);
-		this->m_CH_Idles[ii]->EnableWindow(TRUE);
+		this->m_CH_Idles[ii]->EnableWindow(onflg);
 		// 部品配置
 		this->m_CH_Idles[ii]->MoveWindow(
 			var.left,
@@ -2002,6 +2039,20 @@ void CStressCPUDlg::OnSelchangeCmbThrdw()
 	ThrdCal = std::stoi(sval.GetString());
 	// スレッド列数取得
 	this->SetThrdDispCol(ThrdCal);
+	// スレッドレイアウト表示
+	// スレッド準備フラグ？
+	if (this->GetThrdReadyFlg() == true)
+	{
+		// スレッドコントロール有効
+		this->SetLayOut(ThrdCal, this->GetMaxThrdCount());
+	}
+	else
+	{
+		// スレッドコントロール無効
+		this->SetLayOut(ThrdCal, this->GetMaxThrdCount(), FALSE);
+	}
+	// CPU画像表示
+	this->setPictureControl(this->m_cpuinfo);
 }
 
 // ダイアログのサイズ変更がある時に処理をする
@@ -2010,4 +2061,14 @@ void CStressCPUDlg::OnSize(UINT nType, int cx, int cy)
 	CDialogEx::OnSize(nType, cx, cy);
 	// CPU画像表示
 	this->setPictureControl(this->m_cpuinfo);
+}
+// スレッド準備フラグ設定
+void CStressCPUDlg::SetThrdReadyFlg(bool var)
+{
+	this->ThrdReadyFlg = var;
+}
+// スレッド準備フラグ取得
+bool CStressCPUDlg::GetThrdReadyFlg(void)
+{
+	return this->ThrdReadyFlg;
 }

@@ -132,9 +132,11 @@ public:
 	/// </summary>
 	/// <param name="var">列数</param>
 	/// <param name="cnt">スレッド数</param>
+	/// <param name="onflg">実行・待機切替ON/OFF</param>
 	void SetLayOut(
 		const int var,
-		const int cnt
+		const int cnt,
+		BOOL  onflg = TRUE
 	);
 	/// <summary>
 	/// ダイアログサイズを設定
@@ -514,7 +516,14 @@ public:
 	void SetFlopsMin(double var);
 	// FLOPS値MIN取得
 	double GetFlopsMin(void);
+	// スレッド準備フラグ設定
+	void SetThrdReadyFlg(bool var);
+	// スレッド準備フラグ取得
+	bool GetThrdReadyFlg(void);
+// public
 private:
+	// スレッド準備フラグ
+	bool ThrdReadyFlg;
 	// スレッド表示列数
 	int m_ThrdDispCol;
 	// ダイアログサイズのテーブル
