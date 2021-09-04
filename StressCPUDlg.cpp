@@ -641,6 +641,17 @@ void CStressCPUDlg::OnClickedBuAllSleep()
 	this->hmultiThrd->ZeroCounter();
 	// 一定時間クリックイベントを無効にする
 	this->WaitActiveCtrl(&this->m_BU_AllSleep);
+	// スレッドが１つでも動いていたら無効にする
+	if (this->hmultiThrd->GetUpdateCounter() > 0)
+	{
+		// スレッド部品列数選択リスト無効化
+		this->m_CMB_THRDW.EnableWindow(FALSE);
+	}
+	else
+	{
+		// スレッド部品列数選択リスト有効化
+		this->m_CMB_THRDW.EnableWindow(TRUE);
+	}
 }
 // 一括実行ボタン
 void CStressCPUDlg::OnClickedBuAllWake()
@@ -659,6 +670,17 @@ void CStressCPUDlg::OnClickedBuAllWake()
 	this->hmultiThrd->SetUpdateCounter(this->GetMaxThrdCount());
 	// 一定時間クリックベントを無効にする
 	this->WaitActiveCtrl(&this->m_BU_AllWake);
+	// スレッドが１つでも動いていたら無効にする
+	if (this->hmultiThrd->GetUpdateCounter() > 0)
+	{
+		// スレッド部品列数選択リスト無効化
+		this->m_CMB_THRDW.EnableWindow(FALSE);
+	}
+	else
+	{
+		// スレッド部品列数選択リスト有効化
+		this->m_CMB_THRDW.EnableWindow(TRUE);
+	}
 }
 // 休止／実行反転
 void CStressCPUDlg::OnClickedBuXorThread()
@@ -707,6 +729,17 @@ void CStressCPUDlg::OnClickedBuXorThread()
 	}
 	// 一定時間クリックベントを無効にする
 	this->WaitActiveCtrl(&this->m_BU_XorThrd);
+	// スレッドが１つでも動いていたら無効にする
+	if (this->hmultiThrd->GetUpdateCounter() > 0)
+	{
+		// スレッド部品列数選択リスト無効化
+		this->m_CMB_THRDW.EnableWindow(FALSE);
+	}
+	else
+	{
+		// スレッド部品列数選択リスト有効化
+		this->m_CMB_THRDW.EnableWindow(TRUE);
+	}
 }
 // プログレスバー実行
 void CStressCPUDlg::PrgBarRun(int idx)
