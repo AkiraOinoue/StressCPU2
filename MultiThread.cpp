@@ -77,10 +77,7 @@ namespace MT
 			double e = (double)d * 1.012345;
 			for (ULONG ii = 0; ii < max_count; ii++)
 			{
-				d *= e;
-				d /= e;
-				d += e;
-				d -= e;
+				d = d * e / (d-e) + e - e;
 			}
 		}
 	}

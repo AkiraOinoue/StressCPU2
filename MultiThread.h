@@ -3,8 +3,12 @@
 #include <map>
 #include <string>
 #define D_OUTER (100000)
-#define D_INNER (5042) // FLOPS値調整用の値
+#define D_INNER (4842) // FLOPS値調整用の値
 #define D_MAX_THRD_CNT (32)
+/*
+参考にしたFLOPS値(247.7GFLOPS, BaseClock 3.4GHz)
+https://gadgetversus.com/processor/amd-ryzen-5-1600-specs/
+*/
 namespace MT
 {
 	// 高負荷率可変設定
