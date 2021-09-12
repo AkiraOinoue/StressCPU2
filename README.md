@@ -17,6 +17,7 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 最適化＝最大最適化（速度優先）（/O2）に設定してビルドして下さい。
 コード生成：浮動小数点モデル＝Precise(fp:precise)
 ```
+## FLOPS値についての注意
 本プログラムは開発環境で計測したFLOPS値をベースにしたものになっております。</br>
 そのため他のCPUでは目的のFLOPS値にならない場合もありますのであらかじめご了承下さい。</br>
 開発マシンのスペックは以下の通りです。</br>
