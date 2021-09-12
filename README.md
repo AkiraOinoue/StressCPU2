@@ -22,8 +22,8 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 そのため他のCPUでは目的のFLOPS値にならない場合もありますのであらかじめご了承下さい。</br>
 開発マシンのスペックは以下の通りです。</br>
 ```
-CPU: AMD Ryzen5 1600AF(Base Clock 3.4GHzで動作)</br>
-メモリー：32Gバイト DDR4-2666MHz</br>
+CPU: AMD Ryzen5 1600AF(Base Clock 3.4GHzで動作)
+メモリー：32Gバイト DDR4-2666MHz
 ```
 基準とした値は以下のサイトを参考にしました。</br>
 https://gadgetversus.com/processor/amd-ryzen-5-1600-specs/</br>
