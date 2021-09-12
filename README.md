@@ -23,7 +23,7 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 開発マシンのスペックは以下の通りです。</br>
 ```
 CPU: AMD Ryzen5 1600AF(Base Clock 3.4GHzで動作)
-メモリー：32Gバイト DDR4-2666MHz
+メモリー：32Gバイト(16Gバイトｘ2) DDR4-2666MHz
 ```
 基準とした値は以下のサイトを参考にしました。</br>
 https://gadgetversus.com/processor/amd-ryzen-5-1600-specs/</br>
