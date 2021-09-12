@@ -17,6 +17,13 @@ http://yamatyuu.net/computer/program/vc2013/thread4/index.html</br>
 最適化＝最大最適化（速度優先）（/O2）に設定してビルドして下さい。
 コード生成：浮動小数点モデル＝Precise(fp:precise)
 ```
+本プログラムは開発環境で計測したFLOPS値をベースにしたものになっております。</br>
+そのため他のCPUでは目的のFLOPS値にならない場合もありますのであらかじめご了承下さい。</br>
+開発マシンのスペックは以下の通りです。</br>
+CPU: AMD Ryzen5 1600AF(Base Clock 3.4GHzで動作)</br>
+メモリー：32Gバイト DDR4-2666MHz</br>
+基準とした値は以下のサイトを参考にしました。</br>
+https://gadgetversus.com/processor/amd-ryzen-5-1600-specs/</br>
 ## 制限事項
 最大スレッド数は３２です。
 それ以上のCPUでも動作しますが最大スレッド数は３２として動作します。
