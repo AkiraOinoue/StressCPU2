@@ -27,6 +27,7 @@ CPU: AMD Ryzen5 1600AF(Base Clock 3.4GHzで動作)
 ```
 基準とした値は以下のサイトを参考にしました。</br>
 https://gadgetversus.com/processor/amd-ryzen-5-1600-specs/</br>
+247.7GFLOPS
 ## 制限事項
 最大スレッド数は３２です。
 それ以上のCPUでも動作しますが最大スレッド数は３２として動作します。
